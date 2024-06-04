@@ -13,6 +13,7 @@ import 'package:masahaty/pages/my_posts_page/my_post_page.dart';
 import 'package:masahaty/pages/notifications_page/notifications_page.dart';
 import 'package:masahaty/pages/profile_page/profile_page.dart';
 import 'package:masahaty/pages/register_page/register_page.dart';
+import 'package:masahaty/pages/splash_page.dart/splash_page.dart';
 import '../pages/google_maps_page/pick_your_location.dart';
 import '../pages/home_page/home_page.dart';
 import '../pages/login_page/login_page.dart';
@@ -30,7 +31,7 @@ class AppRouter {
         path: '/',
         name: '/',
         builder: (BuildContext context, GoRouterState state) =>
-            const TabsPage(),
+            const SplashPage(),
       ),
       GoRoute(
         path: Routes.gettingStated,
