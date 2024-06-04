@@ -4,28 +4,23 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 import '../../../components/custom_back_botton.dart';
+import '../../../components/custom_comments_button.dart';
 import '../../../components/custom_favorites_button.dart';
 import '../../../components/rating_button.dart';
 import '../../../core/constants/constants.dart';
 
 class WarehouseCarousel extends ConsumerWidget {
   final List<String> images;
-  final int activeIndex;
-  final ValueChanged<int> onPageChanged;
   final double rating;
   final String id;
   const WarehouseCarousel(
       {super.key,
       required this.images,
-      required this.activeIndex,
-      required this.onPageChanged,
       required this.rating,
       required this.id});
-  //i need to call the favoriteProvider to add the wharehouse to it
-  //keep that in mind
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-
+    int activeIndex = 0;
     return Stack(
       children: [
         Container(
@@ -49,7 +44,9 @@ class WarehouseCarousel extends ConsumerWidget {
             },
             options: CarouselOptions(
               viewportFraction: 1,
-              onPageChanged: (index, reason) => onPageChanged(index),
+              onPageChanged: (index, reason) {
+                activeIndex = index;
+              },
               height: 286,
             ),
           ),
@@ -57,7 +54,7 @@ class WarehouseCarousel extends ConsumerWidget {
         Positioned(
           bottom: 10,
           left: MediaQuery.of(context).size.width / 2.5,
-          child: buildIndicator(),
+          child: buildIndicator(activeIndex),
         ),
         Padding(
           padding: const EdgeInsets.symmetric(
@@ -70,6 +67,7 @@ class WarehouseCarousel extends ConsumerWidget {
               const customBackButton(),
               Row(
                 children: [
+                  CustomCommentsButton(id: id),
                   CustomFavoritesButton(id: id),
                   RatingButton(warehouseRating: rating, id: id),
                 ],
@@ -80,7 +78,8 @@ class WarehouseCarousel extends ConsumerWidget {
       ],
     );
   }
-  Widget buildIndicator() => AnimatedSmoothIndicator(
+
+  Widget buildIndicator(int index) => AnimatedSmoothIndicator(
         effect: const ExpandingDotsEffect(
           expansionFactor: 3,
           spacing: 5,
@@ -88,17 +87,17 @@ class WarehouseCarousel extends ConsumerWidget {
           dotHeight: 8,
           activeDotColor: CustomColorsTheme.headLineColor,
         ),
-        activeIndex: activeIndex,
+        activeIndex: index,
         count: images.length,
       );
 
   Widget buildImage(String urlImage, int index) => ClipRRect(
-    borderRadius: const BorderRadius.vertical(
-        bottom: Radius.circular(CoustomBorderTheme.normalBorderRaduis)),
-    child: Image.network(
-      urlImage,
-      fit: BoxFit.cover,
-      width: double.infinity,
-    ),
-  );
+        borderRadius: const BorderRadius.vertical(
+            bottom: Radius.circular(CoustomBorderTheme.normalBorderRaduis)),
+        child: Image.network(
+          urlImage,
+          fit: BoxFit.cover,
+          width: double.infinity,
+        ),
+      );
 }

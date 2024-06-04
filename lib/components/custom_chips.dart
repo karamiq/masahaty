@@ -56,6 +56,6 @@ class CustomChipsData {
   List<String> get featuresChipText => [
         AppLocalizations.of(context)!.safe,
         AppLocalizations.of(context)!.cooling,
-        AppLocalizations.of(context)!.wide,
+        AppLocalizations.of(context)!.secured,
       ];
 }

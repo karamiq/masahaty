@@ -1,34 +1,59 @@
+import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localization.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:masahaty/components/viewed_item_title.dart';
 import 'package:masahaty/core/constants/constants.dart';
 import 'package:masahaty/models/notifications_model.dart';
+import 'package:masahaty/provider/change_language.dart';
 import 'package:masahaty/provider/current_user.dart';
 import 'package:masahaty/services/dio_notifications.dart';
 import 'package:masahaty/services/dio_order.dart';
+import 'components/notifications_skeleton.dart';
 
 class NotificationsPage extends ConsumerStatefulWidget {
   const NotificationsPage({super.key});
-
   @override
   ConsumerState<NotificationsPage> createState() => _NotificationsPageState();
 }
 
 class _NotificationsPageState extends ConsumerState<NotificationsPage> {
+  get currentLanguage => ref.read(currentLanguageProvider);
   get token => ref.read(currentUserProvider)?.token;
   OrderService orderService = OrderService();
-  Future<List<Notif>> getNotifications() async {
+   List<Notif>? previousNotifs;
+  Set<String> previousIds = Set();
+   Future<List<Notif>> getNotifications() async {
     NotificationsService notificationsService = NotificationsService();
-    List<Notif>? temp =
-        await notificationsService.notificationsGet(token: token);
+    List<Notif> temp = token != null
+        ? await notificationsService.notificationsGet(token: token!)
+        : [];
+
+    previousNotifs = temp;
     return temp;
+  }
+
+   Future<void> checkForNewNotifications() async {
+    while (true) {
+      List<Notif> newNotifications = await getNotifications();
+      if (newNotifications.isNotEmpty) {
+        newNotifications.forEach((notif) {
+          if (!previousIds.contains(notif.id)) {
+            print("New notification: ${notif.title}");
+            print("Description: ${notif.description}");
+            previousIds.add(notif.id);
+          }
+        });
+      }
+      await Future.delayed(Duration(seconds: 5));
+    }
   }
 
   @override
   void initState() {
     super.initState();
-    getNotifications();
+    checkForNewNotifications();
   }
 
   @override
@@ -41,6 +66,17 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              ElevatedButton(
+                  onPressed: () {
+                    AwesomeNotifications().createNotification(
+                        content: NotificationContent(
+                      id: 1,
+                      channelKey: "basic_channel",
+                      title: 'Hello karam',
+                      body: "yess yes yes",
+                    ));
+                  },
+                  child: const Text('')),
               const SizedBox(
                 height: CustomPageTheme.bigPadding,
               ),
@@ -49,11 +85,18 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(
-                      child: CircularProgressIndicator(),
+                      child: NotificationsSkeleton(),
                     );
                   } else if (snapshot.hasError) {
                     return Center(
                       child: Text('Error: ${snapshot.error}'),
+                    );
+                  } else if (snapshot.data == null || snapshot.data!.isEmpty) {
+                    return Column(
+                      children: [
+                        Text(
+                            "${AppLocalizations.of(context)!.notifications} ${AppLocalizations.of(context)!.empty}"),
+                      ],
                     );
                   } else if (snapshot.hasData) {
                     List<Notif> notifications = snapshot.data!;
@@ -69,6 +112,21 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
                         previousNotifications.add(notification);
                       }
                     }
+                    if (previousNotifs != null &&
+                        previousNotifications.length > previousNotifs!.length) {
+                      Notif newNotification = previousNotifications.last;
+
+                      AwesomeNotifications().createNotification(
+                        content: NotificationContent(
+                          id: previousNotifications.length,
+                          channelKey: "basic_channel",
+                          title: newNotification.title,
+                          body: newNotification.description,
+                        ),
+                      );
+                    }
+
+                    previousNotifs = previousNotifications;
 
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -95,7 +153,10 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
                                   Notif notification =
                                       todayNotifications[index];
                                   return buildNotificationItem(
-                                      context, notification);
+                                      context: context,
+                                      notification: notification,
+                                      currentLanguage: currentLanguage,
+                                      dateForm: 'hh:mm a');
                                 },
                               ),
                             ],
@@ -104,6 +165,9 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
+                              const SizedBox(
+                                height: CustomPageTheme.normalPadding,
+                              ),
                               ViewedItemsTitle(
                                   mainText:
                                       AppLocalizations.of(context)!.previous),
@@ -122,7 +186,10 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
                                   Notif notification =
                                       previousNotifications[index];
                                   return buildNotificationItem(
-                                      context, notification);
+                                      context: context,
+                                      notification: notification,
+                                      currentLanguage: currentLanguage,
+                                      dateForm: 'yy-MM-dd');
                                 },
                               ),
                             ],
@@ -136,77 +203,47 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
                   }
                 },
               ),
+              const SizedBox(
+                height: CustomPageTheme.normalPadding,
+              )
             ],
           ),
         ),
       ),
     );
   }
+}
 
-  Widget buildNotificationItem(BuildContext context, Notif notification) {
-    bool isActionTaken = notification.deleted;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius:
-                  BorderRadius.circular(CoustomBorderTheme.normalBorderRaduis)),
-          child: ListTile(
-            title: Text(notification.title),
-            subtitle: Text(
-              isActionTaken
-                  ? (notification.deleted ? 'Approved' : 'Rejected')
-                  : notification.description,
-            ),
-            leading: const CircleAvatar(),
+Widget buildNotificationItem(
+    {required BuildContext context,
+    required Notif notification,
+    required dynamic currentLanguage,
+    required String dateForm}) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Container(
+        decoration: BoxDecoration(
+          border: Border.all(
+              width: CoustomBorderTheme.borderWidth,
+              color: CustomColorsTheme.dividerColor),
+          borderRadius:
+              BorderRadius.circular(CoustomBorderTheme.normalBorderRaduis),
+        ),
+        child: ListTile(
+          title: Text(notification.title),
+          subtitle: Text(
+            notification.description,
+          ),
+          leading: const CircleAvatar(),
+          trailing: Column(
+            children: [
+              Text(DateFormat(dateForm, currentLanguage.languageCode)
+                  .format(notification.creationDate))
+            ],
           ),
         ),
-        if (!isActionTaken) // Show buttons only if action has not been taken
-          Row(
-            children: [
-              Expanded(
-                child: ElevatedButton(
-                  style: TextButton.styleFrom(
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(
-                            CoustomBorderTheme.normalBorderRaduis)),
-                    backgroundColor: CustomColorsTheme.availableRadioColor,
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      orderService.orderReject(
-                          token: token, id: notification.notifyFor);
-                      notification.deleted = true;
-                    });
-                  },
-                  child: Text(AppLocalizations.of(context)!.accept),
-                ),
-              ),
-              const SizedBox(width: CustomPageTheme.smallPadding),
-              Expanded(
-                child: ElevatedButton(
-                  style: TextButton.styleFrom(
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(
-                            CoustomBorderTheme.normalBorderRaduis)),
-                    backgroundColor: CustomColorsTheme.unAvailableRadioColor,
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      orderService.orderReject(
-                          token: token, id: notification.notifyFor);
-                      notification.deleted = false;
-                    });
-                  },
-                  child: Text(AppLocalizations.of(context)!.reject),
-                ),
-              ),
-            ],
-          )
-      ],
-    );
-  }
+      ),
+    ],
+  );
 }

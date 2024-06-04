@@ -22,7 +22,6 @@ class HomePageContent extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        const SizedBox(height: CustomPageTheme.bigPadding),
         ViewedItemsTitle(
           mainText: AppLocalizations.of(context)!.recentlyAdded,
           secontText: AppLocalizations.of(context)!.more,
@@ -30,7 +29,7 @@ class HomePageContent extends StatelessWidget {
         ),
         const SizedBox(height: CustomPageTheme.bigPadding,),
         SizedBox(
-          height: 347,
+          height: 337,
           child: storagesRecentlyAdded == null || storagesRecentlyAdded!.isEmpty
               ? const Center(child: CircularProgressIndicator())
               : ListView.separated(
@@ -78,7 +77,7 @@ class HomePageContent extends StatelessWidget {
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 separatorBuilder: (context, index) => const SizedBox(
-                  height: 20,
+                  height: CustomPageTheme.bigPadding,
                 ),
                 scrollDirection: Axis.vertical,
                 itemBuilder: (context, index) {

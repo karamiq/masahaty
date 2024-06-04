@@ -13,7 +13,7 @@ class CustomFontsTheme {
   static const double bigSize = 16;
   static const normalWeight = FontWeight.w400;
   static const double normalSize = 12;
-  static const double meduimSize = 14;
+  static const double mediumSize = 14;
 }
 
 class CoustomBorderTheme {

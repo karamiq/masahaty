@@ -65,7 +65,7 @@ class _SplashPageState extends State<SplashPage> {
                         AppLocalizations.of(context)!.allRightsAreSaved,
                         style: const TextStyle(
                             color: Color(0xFF80ACB9),
-                            fontSize: CustomFontsTheme.meduimSize),
+                            fontSize: CustomFontsTheme.mediumSize),
                       ),
                     ),
                   ),

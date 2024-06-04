@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'dart:math';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:masahaty/provider/all_warehouses.dart';
 import 'package:masahaty/provider/current_user.dart';
 import 'package:masahaty/provider/location.dart';
+import 'package:shimmer/shimmer.dart';
 import '../../components/custom_search_text_field.dart';
 import '../../core/constants/constants.dart';
 import 'package:flutter_gen/gen_l10n/app_localization.dart';
@@ -12,6 +14,7 @@ import '../../models/warehouse_model.dart';
 import '../../services/dio_storage.dart';
 import 'components/home_app_bar.dart';
 import 'components/home_page_content.dart';
+import 'components/home_page_skeleton.dart';
 import 'components/search_results.dart';
 
 class HomePage extends ConsumerStatefulWidget {
@@ -38,7 +41,6 @@ class _HomePageState extends ConsumerState<HomePage> {
       temp.sort((a, b) => b.creationDate.compareTo(a.creationDate));
       setState(() {
         storagesRecentlyAdded = temp;
-        filteredStorages = temp;
       });
       ref
           .read(allWarehousesPorvider.notifier)
@@ -92,19 +94,19 @@ class _HomePageState extends ConsumerState<HomePage> {
       setState(() {
         storagesClosestToYou = temp;
       });
-
-      // Print the sorted list for debugging
     } catch (e) {}
   }
 
   dynamic placemark;
+  Future<void> feachData() async {
+    recentlyAdded();
+    closestToYou();
+  }
 
   @override
   void initState() {
     super.initState();
-    recentlyAdded();
-    closestToYou();
-    setState(() {});
+    feachData();
   }
 
   @override
@@ -123,65 +125,69 @@ class _HomePageState extends ConsumerState<HomePage> {
     });
   }
 
+  Future<void> _refresh() async {
+    feachData();
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     final userCurrentAddress = ref.watch(locationProvider)?.placemarks;
-
-    String? governorate = "placemark";
-    String? district = 'll';
-    district = userCurrentAddress?.subLocality ??
+    String? district = userCurrentAddress?.subLocality ??
         AppLocalizations.of(context)!.alMansour;
-    governorate =
+    String? governorate =
         userCurrentAddress?.locality ?? AppLocalizations.of(context)!.baghdad;
     return Scaffold(
-      body: SafeArea(
-          child: SingleChildScrollView(
-        child: Column(
-          children: [
-            HomePageBar(
-              onTap: () =>
-                  ref.watch(locationProvider.notifier).getCurrentLocation(),
-              userName: currentUser?.fullName ??
-                  AppLocalizations.of(context)!.visitor,
-              id: currentUser?.shortId ?? AppLocalizations.of(context)!.id,
-              district: district,
-              governorate: governorate,
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: CustomPageTheme.veryBigpadding),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(
-                      CoustomBorderTheme.normalBorderRaduis),
-                ),
-                child: CoustomSearchTextField(
-                  controller: textFiledController,
-                  prefixIcon: Icons.search_rounded,
-                  labelText: AppLocalizations.of(context)!.search,
-                  onChange: filterWarehouses,
+      body: RefreshIndicator(
+        onRefresh: _refresh,
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              HomePageBar(
+                onTap: () =>
+                    ref.watch(locationProvider.notifier).getCurrentLocation(),
+                userName: currentUser?.fullName ??
+                    AppLocalizations.of(context)!.visitor,
+                id: currentUser?.shortId ?? AppLocalizations.of(context)!.id,
+                district: district,
+                governorate: governorate,
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: CustomPageTheme.veryBigpadding),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(
+                        CoustomBorderTheme.normalBorderRaduis),
+                  ),
+                  child: CoustomSearchTextField(
+                    controller: textFiledController,
+                    prefixIcon: Icons.search_rounded,
+                    labelText: AppLocalizations.of(context)!.search,
+                    onChange: filterWarehouses,
+                  ),
                 ),
               ),
-            ),
-            if (searchQuery.isEmpty)
-              storagesRecentlyAdded!.isNotEmpty
-                  ? HomePageContent(
-                      storagesClosestToYou: storagesClosestToYou,
-                      storagesRecentlyAdded: storagesRecentlyAdded,
-                    )
-                  : Column(
-                      children: [
-                        SizedBox(
-                            height: MediaQuery.of(context).size.height / 4),
-                        const CircularProgressIndicator(),
-                      ],
-                    )
-            else
-              SearchResults(storages: filteredStorages),
-          ],
+              const SizedBox(
+                height: CustomPageTheme.bigPadding,
+              ),
+              if (searchQuery.isEmpty)
+                storagesRecentlyAdded!.isNotEmpty || storagesClosestToYou!.isNotEmpty
+                    ? HomePageContent(
+                        storagesClosestToYou: storagesClosestToYou,
+                        storagesRecentlyAdded: storagesRecentlyAdded,
+                      )
+                    : const HomPageSkeleton()
+              else
+                SearchResults(storages: filteredStorages),
+              SizedBox(
+                height: MediaQuery.of(context).size.height / 9,
+              ),
+            ],
+          ),
         ),
-      )),
+      ),
     );
   }
 }

@@ -42,7 +42,7 @@ class _MyBooksPageState extends ConsumerState<MyBooksPage> {
     Widget content;
     if (currentBooks.isEmpty) {
       content = Center(
-        child: Text(AppLocalizations.of(context)!.myBooking),
+        child: Text("${AppLocalizations.of(context)!.myBooking} ${AppLocalizations.of(context)!.empty}"),
       );
     } else {
       content = ListView.separated(
@@ -106,6 +106,8 @@ class _MyBooksPageState extends ConsumerState<MyBooksPage> {
             padding: EdgeInsets.all(CustomPageTheme.smallPadding),
             child: customBackButton(),
           ),
+           title: Text(AppLocalizations.of(context)!.myBooking),
+          centerTitle: true,
         ),
         body: content);
   }

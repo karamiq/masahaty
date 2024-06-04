@@ -17,7 +17,7 @@ class MyFavoritesPage extends ConsumerWidget {
     Widget content;
     if (currentFavorites.isEmpty) {
       content = Center(
-        child: Text(AppLocalizations.of(context)!.myFavorites),
+        child: Text("${AppLocalizations.of(context)!.myFavorites} ${AppLocalizations.of(context)!.empty}"),
       );
     } else {
       content = ListView.separated(
@@ -51,6 +51,8 @@ class MyFavoritesPage extends ConsumerWidget {
             padding: EdgeInsets.all(CustomPageTheme.smallPadding),
             child: customBackButton(),
           ),
+           title: Text(AppLocalizations.of(context)!.myFavorites),
+          centerTitle: true,
         ),
         body: content);
   }

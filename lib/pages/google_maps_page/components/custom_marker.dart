@@ -5,8 +5,7 @@ class CustomMarker extends StatelessWidget {
   final String title;
   final Color color;
 
-  const CustomMarker({Key? key, required this.title, required this.color})
-      : super(key: key);
+  const CustomMarker({super.key, required this.title, required this.color});
 
   @override
   Widget build(BuildContext context) {

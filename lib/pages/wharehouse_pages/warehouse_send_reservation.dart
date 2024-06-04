@@ -5,9 +5,9 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localization.dart';
-import 'package:masahaty/components/form_container.dart'; 
+import 'package:masahaty/components/form_container.dart';
+import 'package:masahaty/pages/wharehouse_pages/components/send_reservation_skeleton.dart';
 import 'package:masahaty/provider/current_user.dart';
-import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import '../../components/custom_back_botton.dart';
 import '../../components/viewed_item_title.dart';
 import '../../core/constants/constants.dart';
@@ -84,7 +84,7 @@ class _WarehouseSendReservationState
     dynamic formattedTotalPrice;
     Widget content;
     if (currentWarehouse == null) {
-      content = const Center(child: CircularProgressIndicator());
+      content = const SendReserveSkeleton();
     } else {
       formattedPrice =
           NumberFormat.decimalPattern().format(currentWarehouse!.price);
@@ -194,7 +194,11 @@ class _WarehouseSendReservationState
                     borderRadius: BorderRadius.circular(
                         CoustomBorderTheme.normalBorderRaduis))),
             onPressed: sendOrder,
-            child: Text(AppLocalizations.of(context)!.sendReservation),
+            child: isLoading != true
+                ? Text(AppLocalizations.of(context)!.sendReservation)
+                : const CircularProgressIndicator(
+                    color: Colors.white,
+                  ),
           ),
           const SizedBox(
             height: CustomPageTheme.bigPadding,
@@ -204,7 +208,7 @@ class _WarehouseSendReservationState
     }
     return Scaffold(
       body: SafeArea(
-        child: ModalProgressHUD(inAsyncCall: isLoading, child: content),
+        child: content,
       ),
     );
   }

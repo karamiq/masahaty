@@ -39,7 +39,6 @@ class _TabsPageState extends State<TabsPage> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     return Scaffold(
-      
       resizeToAvoidBottomInset: false,
       extendBody: true,
       backgroundColor: CustomColorsTheme.scaffoldBackGroundColor,

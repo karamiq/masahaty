@@ -1,21 +1,30 @@
 import 'dart:async';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:masahaty/components/custom_search_text_field.dart';
+import 'package:masahaty/components/shimmer_container.dart';
+import 'package:masahaty/components/viewed_item_title.dart';
 import 'package:masahaty/models/warehouse_model.dart';
+import 'package:masahaty/pages/wharehouse_pages/components/images_slides.dart';
 import 'package:masahaty/provider/current_user.dart';
 import 'package:masahaty/services/dio_bookmark.dart';
 import 'package:flutter_gen/gen_l10n/app_localization.dart';
+import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import '../../components/custom_favorites_button.dart';
+import '../../components/rating_button.dart';
 import '../../core/constants/assets.dart';
 import '../../core/constants/constants.dart';
 import '../../services/dio_storage.dart';
 import '../wharehouse_pages/warehouse_details_page.dart';
 import 'components/custom_marker.dart';
+import 'components/marked_warehouse_info.dart';
 
 class GoogleMapsPage extends ConsumerStatefulWidget {
   const GoogleMapsPage({super.key});
@@ -74,7 +83,7 @@ class _GoogleMapsPageState extends ConsumerState<GoogleMapsPage> {
     Widget content;
     if (allWarehouses.isEmpty) {
       content = const Center(
-        child: CircularProgressIndicator(),
+        child: ShimmerContainer(width: double.infinity,height: double.infinity,),
       );
     } else {
       content = Stack(
@@ -84,20 +93,21 @@ class _GoogleMapsPageState extends ConsumerState<GoogleMapsPage> {
               mapController = controller;
               mapController.setMapStyle(themeForMap);
               for (var warehouse in allWarehouses) {
-                final formattedPrice = NumberFormat.decimalPattern().format(warehouse.price);
+                final formattedPrice =
+                    NumberFormat.decimalPattern().format(warehouse.price);
                 addMarker(
                     warehouse.id,
                     LatLng(warehouse.latitude, warehouse.longitude),
-                    warehouse.name,formattedPrice,
+                    warehouse.name,
+                    formattedPrice,
                     context);
               }
             },
             myLocationButtonEnabled: false,
             myLocationEnabled: true,
             zoomControlsEnabled: false,
-            onTap: (f) {
+            onTap: (pos) {
               setState(() {
-                print(f);
               });
             },
             liteModeEnabled: false,
@@ -128,7 +138,7 @@ class _GoogleMapsPageState extends ConsumerState<GoogleMapsPage> {
     }
 
     return Scaffold(
-      resizeToAvoidBottomInset: false,
+      resizeToAvoidBottomInset: true,
       backgroundColor: Colors.transparent,
       body: GestureDetector(
         onTap: () => FocusScope.of(context)
@@ -138,8 +148,8 @@ class _GoogleMapsPageState extends ConsumerState<GoogleMapsPage> {
     );
   }
 
-  Future<void> addMarker(
-      String id, LatLng location, String name,String price ,BuildContext context) async {
+  Future<void> addMarker(String id, LatLng location, String name, String price,
+      BuildContext context) async {
     //final customMarkerWidget = CustomMarker(
     //  title: name,
     //  color: Colors.blue,
@@ -147,13 +157,14 @@ class _GoogleMapsPageState extends ConsumerState<GoogleMapsPage> {
     //final bitmapDescriptor =
     //    await _bitmapFromWidget(customMarkerWidget, context);
     final marker = Marker(
+      onTap: () => getMarkedInfo(context: context, id: id),
       markerId: MarkerId(id),
       position: location,
       icon: BitmapDescriptor.defaultMarker,
       infoWindow: InfoWindow(
-        onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (c) => WarehouseDetailesPage(id: id))),
         title: name,
-        snippet:  "$price ${AppLocalizations.of(context)!.iqd}/${AppLocalizations.of(context)!.night} ", // Optional snippet
+        snippet:
+            "$price ${AppLocalizations.of(context)!.iqd}/${AppLocalizations.of(context)!.night} ", // Optional snippet
       ),
     );
 
@@ -195,4 +206,22 @@ class _GoogleMapsPageState extends ConsumerState<GoogleMapsPage> {
   //    throw Exception('ByteData is null');
   //  }
   //}
+}
+
+dynamic getMarkedInfo(
+    {required BuildContext context, required String id}) async {
+  showModalBottomSheet(
+    isScrollControlled: true,
+    showDragHandle: true,
+    enableDrag: true,
+    barrierColor: const ui.Color.fromARGB(90, 0, 0, 0),
+    context: context,
+    builder: (context) => SizedBox(
+      width: double.infinity,
+      height: 400,
+      child: MarkedWarehouseInfo(
+        id: id,
+      ),
+    ),
+  );
 }

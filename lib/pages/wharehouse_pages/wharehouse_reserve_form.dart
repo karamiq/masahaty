@@ -6,6 +6,7 @@ import 'package:masahaty/components/viewed_item_title.dart';
 import 'package:masahaty/core/constants/constants.dart';
 import 'package:flutter_gen/gen_l10n/app_localization.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'components/custom_expantion_tile.dart';
 import 'warehouse_send_reservation.dart';
 
 class WharehouseReserveForm extends StatefulWidget {
@@ -14,13 +15,14 @@ class WharehouseReserveForm extends StatefulWidget {
   @override
   State<WharehouseReserveForm> createState() => _WharehouseReserveFormState();
 }
+
 class _WharehouseReserveFormState extends State<WharehouseReserveForm> {
   String? storagingType;
   DateTime? _rangeStart = DateTime.now();
   DateTime? _rangeEnd = DateTime.now();
   final countController = TextEditingController();
   final countFormKey = GlobalKey<FormState>();
-
+  bool totalDaysValid = true;
   List<String> get storagingTypeOptions => [
         AppLocalizations.of(context)!.storagingTypeGoods,
         AppLocalizations.of(context)!.storagingTypeFurniture,
@@ -29,7 +31,6 @@ class _WharehouseReserveFormState extends State<WharehouseReserveForm> {
 
   @override
   void didChangeDependencies() {
-   
     super.didChangeDependencies();
     storagingType = AppLocalizations.of(context)!.storagingTypeFurniture;
   }
@@ -39,7 +40,6 @@ class _WharehouseReserveFormState extends State<WharehouseReserveForm> {
       _rangeStart = start;
       _rangeEnd = end;
     });
-    print("start: $_rangeStart, end: $_rangeEnd");
   }
 
   String? checkValidation(String? query) {
@@ -52,6 +52,13 @@ class _WharehouseReserveFormState extends State<WharehouseReserveForm> {
 
   bool validateForm() {
     bool isValid = true;
+    final tempTotal = _rangeEnd!.difference(_rangeStart!).inDays;
+    if (tempTotal <= 2) {
+      isValid = false;
+      setState(() {
+        totalDaysValid = false;
+      });
+    }
     if (!countFormKey.currentState!.validate()) isValid = false;
     if (storagingType == null) isValid = false;
     return isValid;
@@ -60,7 +67,6 @@ class _WharehouseReserveFormState extends State<WharehouseReserveForm> {
   @override
   Widget build(BuildContext context) {
     void route() {
-      print(storagingType);
       if (validateForm()) {
         Navigator.of(context).push(MaterialPageRoute(
             builder: (c) => WarehouseSendReservation(
@@ -72,11 +78,11 @@ class _WharehouseReserveFormState extends State<WharehouseReserveForm> {
                 )));
       }
     }
-
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: CustomPageTheme.normalPadding),
+          padding: const EdgeInsets.symmetric(
+              horizontal: CustomPageTheme.normalPadding),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -123,6 +129,12 @@ class _WharehouseReserveFormState extends State<WharehouseReserveForm> {
                 firstDay: DateTime.now(),
                 lastDay: DateTime(2070, 1, 1),
               ),
+              if (totalDaysValid != true)
+                Text(
+                  AppLocalizations.of(context)!.rentDaysMinimum,
+                  style:
+                      const TextStyle(color: CustomColorsTheme.unAvailableRadioColor),
+                ),
               const SizedBox(height: CustomPageTheme.normalPadding),
               ViewedItemsTitle(
                 mainText: AppLocalizations.of(context)!.orderDetails,
@@ -159,63 +171,6 @@ class _WharehouseReserveFormState extends State<WharehouseReserveForm> {
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-
-class CustomExpansionTile extends StatefulWidget {
-  final String initialTitle;
-  final List<String> options;
-  final ValueChanged<String> onOptionSelected;
-  const CustomExpansionTile({
-    super.key,
-    required this.initialTitle,
-    required this.options,
-    required this.onOptionSelected,
-  });
-
-  @override
-  createState() => _CustomExpansionTileState();
-}
-
-class _CustomExpansionTileState extends State<CustomExpansionTile> {
-  late String _currentTitle;
-
-  @override
-  void initState() {
-    super.initState();
-    _currentTitle = widget.initialTitle;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius:
-              BorderRadius.circular(CoustomBorderTheme.normalBorderRaduis),
-          border: Border.all(
-              width: CoustomBorderTheme.borderWidth,
-              color: CustomColorsTheme.dividerColor)),
-      child: ExpansionTile(
-        collapsedIconColor: CustomColorsTheme.headLineColor,
-        iconColor:
-            CustomColorsTheme.headLineColor, // Use your custom color here
-        title: Text(_currentTitle),
-        children: widget.options.map((option) {
-          return ListTile(
-            title: Text(option),
-            onTap: () {
-              setState(() {
-                _currentTitle = option;
-              });
-              widget.onOptionSelected(
-                  option); // Call the callback with the selected value
-            },
-          );
-        }).toList(),
       ),
     );
   }

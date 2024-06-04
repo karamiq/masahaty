@@ -10,10 +10,10 @@ import 'package:masahaty/pages/my_posts_page/my_post_page.dart';
 import 'package:masahaty/pages/notifications_page/notifications_page.dart';
 import 'package:masahaty/pages/profile_page/profile_page.dart';
 import 'package:masahaty/pages/register_page/register_page.dart';
-import 'package:masahaty/pages/splash_page.dart/splash_page.dart';
 import '../pages/home_page/home_page.dart';
 import '../pages/login_page/login_page.dart';
 import '../pages/tabs_page/tabs_page.dart';
+import '../pages/warehouse_filtering_Page/warehouse_filtering_Page.dart';
 import '../pages/wharehouse_pages/warehouse_details_page.dart';
 import '../pages/wharehouse_pages/warehouse_send_reservation.dart';
 import '../pages/wharehouse_pages/wharehouse_reserve_form.dart';
@@ -26,7 +26,7 @@ class AppRouter {
         path: '/',
         name: '/',
         builder: (BuildContext context, GoRouterState state) =>
-            const SplashPage(),
+            const TabsPage(),
       ),
       GoRoute(
         path: Routes.gettingStated,
@@ -124,11 +124,18 @@ class AppRouter {
         builder: (BuildContext context, GoRouterState state) =>
             const MorePage([]),
       ),
+      GoRoute(
+        path: Routes.warehouseFilteringPage,
+        name: Routes.warehouseFilteringPage,
+        builder: (BuildContext context, GoRouterState state) =>
+            const WarehouseFilteringPage(filtringType: '',),
+      ),
     ],
   );
 }
 
 class Routes {
+  static const warehouseFilteringPage = "/warehouse_filtering_page";
   static const morePage = '/more_page';
   static const myBooksPage = '/my_books_page';
   static const myPostsPage = '/my_posts_page';

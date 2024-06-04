@@ -65,6 +65,7 @@ class Assets {
   /// assets/images/splashScreenLogo.png
   static const String assetsImagesSplashScreenLogo = "assets/images/splashScreenLogo.png";
 
+
   /// Assets for assetsThemesDarkMapStyle
   /// assets/themes/dark_map_style.json
   static const String assetsThemesDarkMapStyle = "assets/themes/dark_map_style.json";

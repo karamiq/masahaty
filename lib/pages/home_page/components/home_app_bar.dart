@@ -28,7 +28,7 @@ class _HomePageBarState extends State<HomePageBar> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(CustomPageTheme.bigPadding),
+      padding: const EdgeInsets.only(top: CustomPageTheme.bigPadding * 2,bottom:CustomPageTheme.bigPadding , right: CustomPageTheme.bigPadding, left: CustomPageTheme.bigPadding),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [

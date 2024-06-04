@@ -37,6 +37,7 @@ class WarehouseCard extends StatelessWidget {
       onTap: () => warehouseInfoPage(),
       child: Container(
         padding: const EdgeInsets.all(CustomPageTheme.normalPadding),
+        height: 337,
         width: 347,
         decoration: BoxDecoration(
           border: Border.all(color: Colors.grey, width: 0.1),
@@ -97,11 +98,12 @@ class WarehouseCard extends StatelessWidget {
             ),
             Text(
               discription,
-              maxLines: 1,
+              maxLines: 2,
               style: const TextStyle(
                 color: CustomColorsTheme.descriptionColor,
               ),
             ),
+            const Spacer(),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [

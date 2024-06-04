@@ -33,7 +33,6 @@ class _MyPostPageState extends ConsumerState<MyPostPage> {
   }
    @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     getOrders();
   }
@@ -50,7 +49,7 @@ class _MyPostPageState extends ConsumerState<MyPostPage> {
 
     if (currentPosts.isEmpty) {
       content = Center(
-        child: Text(AppLocalizations.of(context)!.myPosts),
+        child: Text("${AppLocalizations.of(context)!.myPosts} ${AppLocalizations.of(context)!.empty}"),
       );
     } else {
       content = ListView.separated(
@@ -84,6 +83,8 @@ class _MyPostPageState extends ConsumerState<MyPostPage> {
             padding: EdgeInsets.all(CustomPageTheme.smallPadding),
             child: customBackButton(),
           ),
+          title: Text(AppLocalizations.of(context)!.myPosts),
+          centerTitle: true,
         ),
         body: content);
   }

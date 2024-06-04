@@ -11,10 +11,10 @@ import 'package:masahaty/pages/wharehouse_pages/wharehouse_reserve_form.dart';
 import 'package:masahaty/provider/change_language.dart';
 import 'package:masahaty/provider/current_user.dart';
 import 'package:masahaty/services/dio_storage.dart';
-import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import '../../components/custom_chips.dart';
 import '../../components/viewed_item_title.dart';
 import '../../routes/routes.dart';
+import 'components/detailes_page_skeleton.dart';
 import 'components/images_slides.dart';
 import 'components/wharehouse_title_and_price.dart';
 
@@ -40,6 +40,7 @@ class _WarehouseDetailesState extends ConsumerState<WarehouseDetailesPage> {
   Future<void> getDetails() async {
     try {
       Warehouse temp = await storageService.storageGetById(id: widget.id);
+      print(widget.id);
       setState(() {
         currentWarehouse = temp;
       });
@@ -137,143 +138,136 @@ class _WarehouseDetailesState extends ConsumerState<WarehouseDetailesPage> {
     }
 
     if (currentWarehouse == null) {
-      content = const Center(child: CircularProgressIndicator());
+      content = const DetailsPageSkeleton();
     } else {
       features = currentWarehouse!.storageFeatures;
       formattedPrice =
           NumberFormat.decimalPattern().format(currentWarehouse!.price);
-      content = ModalProgressHUD(
-        inAsyncCall: isLoading,
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              WarehouseCarousel(
-                id: currentWarehouse!.id,
-                images: currentWarehouse!.images,
-                activeIndex: activeIndex,
-                onPageChanged: (int value) {
-                  setState(() => activeIndex = value);
-                },
-                rating: currentWarehouse!.rating,
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: CustomPageTheme.normalPadding),
-                decoration: const BoxDecoration(
-                    borderRadius: BorderRadius.vertical(
-                        top: Radius.circular(
-                            CoustomBorderTheme.normalBorderRaduis))),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(
-                      height: CustomPageTheme.normalPadding,
-                    ),
-                    Container(
-                      margin: EdgeInsets.symmetric(
-                          horizontal: MediaQuery.of(context).size.width / 3),
-                      width: 150,
-                      height: 4,
-                      decoration: const BoxDecoration(
-                          color: CustomColorsTheme.handColor,
-                          borderRadius: BorderRadius.vertical(
-                              top: Radius.circular(
-                                  CoustomBorderTheme.normalBorderRaduis))),
-                    ),
-                    const SizedBox(
-                      height: CustomPageTheme.normalPadding,
-                    ),
-                    WarehouseTitleAndPrice(
-                        currentWarehouse: currentWarehouse,
-                        formattedPrice: formattedPrice),
-                    Row(
-                      children: [
-                        const Icon(Icons.location_on_outlined,
-                            color: CustomColorsTheme.headLineColor,
-                            size: CoustomIconTheme.smallize),
-                        Text(
-                          '${currentWarehouse!.city['govName']}, ${currentWarehouse!.address}',
-                          style: const TextStyle(
-                              color: CustomColorsTheme.descriptionColor),
-                        )
-                      ],
-                    ),
-                    const SizedBox(
-                      height: CustomPageTheme.bigPadding,
-                    ),
-                    ViewedItemsTitle(
-                      padding: const EdgeInsets.all(0),
-                      mainText: AppLocalizations.of(context)!.description,
-                    ),
-                    const SizedBox(
-                      height: CustomPageTheme.normalPadding,
-                    ),
-                    Text(
-                      currentWarehouse!.description,
-                      textAlign: TextAlign.start,
-                    ),
-                    const SizedBox(
-                      height: CustomPageTheme.bigPadding,
-                    ),
-                    ViewedItemsTitle(
-                      padding: const EdgeInsets.all(0),
-                      mainText: AppLocalizations.of(context)!.features,
-                    ),
-                    const SizedBox(
-                      height: CustomPageTheme.normalPadding,
-                    ),
-                    CustomChips(
-                        featuresChipsPics:
-                            CustomChipsData(context).featuresChipsPics,
-                        featuresChipText:
-                            CustomChipsData(context).featuresChipText),
-                    const SizedBox(
-                      height: CustomPageTheme.bigPadding,
-                    ),
-                    ViewedItemsTitle(
-                      padding: const EdgeInsets.all(0),
-                      mainText: AppLocalizations.of(context)!.details,
-                    ),
-                    const SizedBox(
-                      height: CustomPageTheme.normalPadding,
-                    ),
-                    InfoTable(
-                        currentLanguage: currentLanguage,
-                        currentWarehouse: currentWarehouse,
-                        features: features),
-                    const SizedBox(
-                      height: CustomPageTheme.bigPadding,
-                    ),
-                    ViewedItemsTitle(
-                      padding: const EdgeInsets.all(0),
-                      mainText: AppLocalizations.of(context)!.location,
-                    ),
-                    const SizedBox(
-                      height: CustomPageTheme.normalPadding,
-                    ),
-                    SizedBox(
-                      height: 200,
-                      width: 400,
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(
-                            CoustomBorderTheme.normalBorderRaduis),
-                        child: Image.network(
-                            fit: BoxFit.fill,
-                            "https://img.freepik.com/free-photo/red-light-round-podium-black-background-mock-up_43614-950.jpg?t=st=1716295750~exp=1716299350~hmac=050643ede7569f05a16820f520ee7b52f3ddc7e104fd09fc5393b7a0dfbe388e&w=826"),
+      content = SingleChildScrollView(
+        child: Column(
+          children: [
+            WarehouseCarousel(
+              id: currentWarehouse!.id,
+              images: currentWarehouse!.images,
+              rating: currentWarehouse!.rating,
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(
+                  horizontal: CustomPageTheme.normalPadding),
+              decoration: const BoxDecoration(
+                  borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(
+                          CoustomBorderTheme.normalBorderRaduis))),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(
+                    height: CustomPageTheme.normalPadding,
+                  ),
+                  Container(
+                    margin: EdgeInsets.symmetric(
+                        horizontal: MediaQuery.of(context).size.width / 3),
+                    width: 150,
+                    height: 4,
+                    decoration: const BoxDecoration(
+                        color: CustomColorsTheme.handColor,
+                        borderRadius: BorderRadius.vertical(
+                            top: Radius.circular(
+                                CoustomBorderTheme.normalBorderRaduis))),
+                  ),
+                  const SizedBox(
+                    height: CustomPageTheme.normalPadding,
+                  ),
+                  WarehouseTitleAndPrice(
+                      currentWarehouse: currentWarehouse,
+                      formattedPrice: formattedPrice),
+                  Row(
+                    children: [
+                      const Icon(Icons.location_on_outlined,
+                          color: CustomColorsTheme.headLineColor,
+                          size: CoustomIconTheme.smallize),
+                      Text(
+                        '${currentWarehouse!.city['govName']}, ${currentWarehouse!.address}',
+                        style: const TextStyle(
+                            color: CustomColorsTheme.descriptionColor),
                       ),
+                    ],
+                  ),
+                  const SizedBox(
+                    height: CustomPageTheme.bigPadding,
+                  ),
+                  ViewedItemsTitle(
+                    padding: const EdgeInsets.all(0),
+                    mainText: AppLocalizations.of(context)!.description,
+                  ),
+                  const SizedBox(
+                    height: CustomPageTheme.normalPadding,
+                  ),
+                  Text(
+                    currentWarehouse!.description,
+                    textAlign: TextAlign.start,
+                  ),
+                  const SizedBox(
+                    height: CustomPageTheme.bigPadding,
+                  ),
+                  ViewedItemsTitle(
+                    padding: const EdgeInsets.all(0),
+                    mainText: AppLocalizations.of(context)!.features,
+                  ),
+                  const SizedBox(
+                    height: CustomPageTheme.normalPadding,
+                  ),
+                  CustomChips(
+                      featuresChipsPics:
+                          CustomChipsData(context).featuresChipsPics,
+                      featuresChipText:
+                          CustomChipsData(context).featuresChipText),
+                  const SizedBox(
+                    height: CustomPageTheme.bigPadding,
+                  ),
+                  ViewedItemsTitle(
+                    padding: const EdgeInsets.all(0),
+                    mainText: AppLocalizations.of(context)!.details,
+                  ),
+                  const SizedBox(
+                    height: CustomPageTheme.normalPadding,
+                  ),
+                  InfoTable(
+                      currentLanguage: currentLanguage,
+                      currentWarehouse: currentWarehouse,
+                      features: features),
+                  const SizedBox(
+                    height: CustomPageTheme.bigPadding,
+                  ),
+                  ViewedItemsTitle(
+                    padding: const EdgeInsets.all(0),
+                    mainText: AppLocalizations.of(context)!.location,
+                  ),
+                  const SizedBox(
+                    height: CustomPageTheme.normalPadding,
+                  ),
+                  SizedBox(
+                    height: 200,
+                    width: 400,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(
+                          CoustomBorderTheme.normalBorderRaduis),
+                      child: Image.network(
+                          fit: BoxFit.fill,
+                          "https://img.freepik.com/free-photo/red-light-round-podium-black-background-mock-up_43614-950.jpg?t=st=1716295750~exp=1716299350~hmac=050643ede7569f05a16820f520ee7b52f3ddc7e104fd09fc5393b7a0dfbe388e&w=826"),
                     ),
-                    const SizedBox(
-                      height: CustomPageTheme.bigPadding,
-                    ),
-                    currentButton(),
-                    const SizedBox(
-                      height: CustomPageTheme.bigPadding,
-                    ),
-                  ],
-                ),
+                  ),
+                  const SizedBox(
+                    height: CustomPageTheme.bigPadding,
+                  ),
+                  currentButton(),
+                  const SizedBox(
+                    height: CustomPageTheme.bigPadding,
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       );
     }

@@ -29,6 +29,7 @@ class EndPoints {
   static const String orderApprove = '/approve';
   static const String orderReject = ' /reject';
   static const String orderFinish = ' /finish';
+  static const String comments = "/comments/";
 }
 
 class ApiKey {

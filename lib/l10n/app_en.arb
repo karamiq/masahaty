@@ -27,9 +27,9 @@
     "closestToYou": "Closest to you",
     "safe":"Safe",
     "cooling": "Cooling",
-    "external":"External",
-    "small":"Small",
-    "wide":"Wide",
+    "roof":"Roof",
+  "secured":"Secured",
+  "camera" :"Camera",
     "language":"Language",
     "english":"English",
     "arabic":"Arabic",
@@ -76,8 +76,6 @@
   "or":"OR",
   "fullName":"Full name",
   "phoneNumber":"Phone number",
-  "roof":"Roof",
-  "secured":"Secured",
   "moneySafe":"Safe",
   "securityCameras":"Security cameras",
   "failedLogin": "Failed to login",
@@ -95,7 +93,6 @@
   "features":"Features",
   "details":"Details",
   "location":"Location",
-  "camera" :"Camera",
   "bookWharehouse": "Book Wharehouse",
   "chooseTimeOfReserve": "Choose the reservation period",
   "storagingDetails": "Storaging details",
@@ -142,7 +139,16 @@
   "newOrder":"New order",
   "newOrderDescription":"You have new order",
   "reject":"Reject",
-  "accept":"Accept"
+  "accept":"Accept",
+  "rentDaysMinimum":"Rent days must be at least 3 days",
+  "moreInfo":"More info",
+  "addComment":"Add a comment",
+  "reply":"Reply",
+  "show":"Show",
+  "hide":"Hide",
+  "noComments":"There is no comments",
+  "empty":"empty"
+
 
   
 }

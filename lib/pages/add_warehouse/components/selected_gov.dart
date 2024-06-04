@@ -18,7 +18,7 @@ class SelectGov extends StatelessWidget {
   Widget build(BuildContext context) {
     return InputDecorator(
       decoration: InputDecoration(
-        errorText: stateIsValid != true ? AppLocalizations.of(context)!.phoneNumberErrorEmpty :null,
+        errorText: stateIsValid == false ? AppLocalizations.of(context)!.phoneNumberErrorEmpty :null,
         filled: true,
         fillColor: Colors.white,
         contentPadding:

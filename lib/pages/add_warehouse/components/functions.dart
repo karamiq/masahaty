@@ -69,7 +69,7 @@ Future<List<String>> getFeaturesIds({
     temp.add(gurderdId);
   }
   if (safe) {
-    String safeId = await featuresService.featuresGet('خزنة');
+    String safeId = await featuresService.featuresGet('مؤمنة');
     temp.add(safeId);
   }
   if (securityCameras) {
