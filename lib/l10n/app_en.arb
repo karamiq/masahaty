@@ -150,7 +150,11 @@
   "empty":"empty",
   "orderManagement": "Order management",
   "owner":"Owner",
-  "finishOrder":"End reservation"
+  "finishOrder":"End reservation",
+  "pickLocation":"Pick the location",
+  "m":"m",
+  "doYouHaveAnAccount":"Do you have an account?",
+  "youAreNewUser": "You are new user?"
 
 
   

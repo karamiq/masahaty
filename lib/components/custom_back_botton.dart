@@ -4,8 +4,8 @@ import 'package:go_router/go_router.dart';
 
 import '../core/constants/constants.dart';
 
-class customBackButton extends StatelessWidget {
-  const customBackButton({
+class CustomBackButton extends StatelessWidget {
+  const CustomBackButton({
     super.key,
   });
 

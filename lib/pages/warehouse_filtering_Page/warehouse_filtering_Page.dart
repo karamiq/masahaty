@@ -77,7 +77,7 @@ class _WarehouseFilteringPageState extends State<WarehouseFilteringPage> {
         centerTitle: true,
         leading: const Padding(
           padding: EdgeInsets.all(CustomPageTheme.smallPadding),
-          child: customBackButton(),
+          child: CustomBackButton(),
         ),
       ),
       body: Center(child: content),

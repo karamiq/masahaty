@@ -189,7 +189,7 @@ class _OrderDetailesPageState extends ConsumerState<OrderDetailesPage> {
         centerTitle: true,
         leading: const Padding(
           padding: EdgeInsets.all(CustomPageTheme.smallPadding),
-          child: customBackButton(),
+          child: CustomBackButton(),
         ),
       ),
       body: content,

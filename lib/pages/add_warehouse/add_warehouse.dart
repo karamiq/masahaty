@@ -5,9 +5,11 @@ import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:masahaty/components/custom_back_botton.dart';
 import 'package:masahaty/components/governorates.dart';
+import 'package:masahaty/models/location_model.dart';
 import 'package:masahaty/pages/add_warehouse/components/functions.dart';
 import 'package:masahaty/provider/current_user.dart';
 import 'package:masahaty/provider/location.dart';
+import 'package:masahaty/provider/selected_location.dart';
 import 'package:masahaty/routes/routes.dart';
 import 'package:masahaty/services/dio_storage.dart';
 import '../../components/info_text_form_field.dart';
@@ -15,7 +17,7 @@ import '../../components/show_selection_bottomsheet.dart';
 import '../../components/subtitle.dart';
 import '../../core/constants/constants.dart';
 import 'package:flutter_gen/gen_l10n/app_localization.dart';
-import '../profile_page/components/profie_elements_data.dart';
+import '../../provider/location_helper.dart';
 import '../profile_page/components/settings_buttons.dart';
 import 'components/add_images.dart';
 import 'components/custom_radio_features.dart';
@@ -69,7 +71,11 @@ class _AddWarehousePostState extends ConsumerState<AddWarehousePost> {
   String selectedCity = '';
   int imagesLimit = 9;
   bool isLoading = false;
+  bool addressSelected = true;
+  bool loadCurrentLocation = false;
   final ImagePicker imagePicker = ImagePicker();
+
+  LocationService? storageLocation;
 
   void selectGov() async {
     setState(() {});
@@ -105,15 +111,13 @@ class _AddWarehousePostState extends ConsumerState<AddWarehousePost> {
   }
 
   void selectImages() async {
-    //.pickMultiImage(limit: imagesLimit, ImageSource.gallery);
-    List<XFile>? returnedImages =
-        await ImagePicker().pickMultiImage(limit: imagesLimit);
+    List<XFile>? returnedImages = await ImagePicker().pickMultiImage();
     if (returnedImages.isNotEmpty) {
       setState(() {
         for (var image in returnedImages) {
           tempImages.add(File(image.path));
         }
-        imagesLimit = (7 - tempImages.length);
+        imagesLimit = (9 - tempImages.length);
       });
     }
   }
@@ -131,6 +135,14 @@ class _AddWarehousePostState extends ConsumerState<AddWarehousePost> {
     pricePerNight = double.tryParse(pricePerNightController.text) ?? 0;
     space = double.tryParse(warehousSpaceController.text) ?? 0;
     bool isValid = true;
+    if (storageLocation == null) {
+      setState(() {
+        addressSelected = false;
+        isValid = false;
+      });
+    } else {
+      addressSelected = true;
+    }
     if (selectedGovermnt.isEmpty == true || selectedGovermnt == null) {
       govStateIsValid == false;
       setState(() {});
@@ -159,10 +171,10 @@ class _AddWarehousePostState extends ConsumerState<AddWarehousePost> {
 
   void postWarehouse() async {
     setState(() => isLoading = true);
-      govId = await getGovId(context, selectedGovermnt);
+    govId = await getGovId(context, selectedGovermnt);
 
     dynamic temp;
-      temp = await getCityId(context, selectedCity, selectedGovermnt);
+    temp = await getCityId(context, selectedCity, selectedGovermnt);
     address = temp?['name'];
     cityId = temp?['id'];
     if (validateForm()) {
@@ -198,19 +210,49 @@ class _AddWarehousePostState extends ConsumerState<AddWarehousePost> {
   }
 
   void go() => context.pushNamed(Routes.profilePage);
+
   @override
   Widget build(BuildContext context) {
     final currentLocation = ref.watch(locationProvider);
-    warehouseLatitude = currentLocation?.latitude;
-    warehouseLongitude = currentLocation?.longitude;
-    Widget previewContent;
+    final selectedLocation = ref.watch(selectLocationProvider);
 
-    void getLocation() {
-      ref.read(locationProvider.notifier).getCurrentLocation();
+    Widget previewContent;
+    void pickLocation() async {
       setState(() {});
+      context.pushNamed(Routes.pickLocation);
+      setState(() {
+        ref
+            .read(selectLocationProvider.notifier)
+            .selectLocation(currentLocation);
+        storageLocation = selectedLocation;
+        
+         warehouseLatitude = storageLocation?.latitude;
+        warehouseLongitude = storageLocation?.longitude;
+      });
     }
 
-    if (currentLocation == null) {
+    void getLocation() async {
+      setState(() {
+        loadCurrentLocation = true;
+      });
+      ref.read(locationProvider.notifier).getCurrentLocation().then((_) async {
+        warehouseLatitude = currentLocation?.latitude;
+        warehouseLongitude = currentLocation?.longitude;
+        storageLocation =
+            currentLocation; // Set storageLocation to currentLocation
+        storageLocation?.placemarks = await convertToAddress(
+            warehouseLatitude ?? 0, warehouseLongitude ?? 0);
+        setState(() {
+          loadCurrentLocation = false;
+        });
+      });
+    }
+
+    if (loadCurrentLocation) {
+      previewContent = const Center(
+        child: CircularProgressIndicator(),
+      );
+    } else if (storageLocation == null) {
       previewContent = Text(
         AppLocalizations.of(context)!.noAddressSelected,
       );
@@ -219,11 +261,12 @@ class _AddWarehousePostState extends ConsumerState<AddWarehousePost> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-              '${currentLocation.placemarks?.locality} - ${currentLocation.placemarks?.subLocality} - ${currentLocation.placemarks?.name}'),
-          Text('${currentLocation.latitude}, ${currentLocation.longitude}'),
+              '${storageLocation?.placemarks?.locality} - ${storageLocation?.placemarks?.subLocality} - ${storageLocation?.placemarks?.name}'),
+          Text('${storageLocation?.latitude}, ${storageLocation?.longitude}'),
         ],
       );
     }
+
     return Scaffold(
       body: SingleChildScrollView(
         child: Padding(
@@ -238,7 +281,7 @@ class _AddWarehousePostState extends ConsumerState<AddWarehousePost> {
               ),
               Row(
                 children: [
-                  const customBackButton(),
+                  const CustomBackButton(),
                   Padding(
                     padding: const EdgeInsets.symmetric(
                         horizontal: CustomPageTheme.smallPadding),
@@ -305,7 +348,7 @@ class _AddWarehousePostState extends ConsumerState<AddWarehousePost> {
                 formKey: noumberOfRoomsFormKey,
                 validator: checkValidation,
               ),
-              SubTitle(ttt: AppLocalizations.of(context)!.space),
+              SubTitle(ttt: "${AppLocalizations.of(context)!.space} ${AppLocalizations.of(context)!.m}"),
               InfoTextField(
                 keyboardType: TextInputType.number,
                 controller: warehousSpaceController,
@@ -348,46 +391,55 @@ class _AddWarehousePostState extends ConsumerState<AddWarehousePost> {
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(
-                    color: Colors.grey,
+                    color: addressSelected != false
+                        ? Colors.grey
+                        : CustomColorsTheme.unAvailableRadioColor,
                     width: 2,
                   ),
                 ),
                 child: previewContent,
               ),
               Padding(
-                padding: const EdgeInsets.symmetric(vertical: CustomPageTheme.normalPadding),
+                padding: const EdgeInsets.all(CustomPageTheme.smallPadding),
+                child: addressSelected == false
+                    ? Text(
+                        AppLocalizations.of(context)!.phoneNumberErrorEmpty,
+                        style: const TextStyle(
+                            color: CustomColorsTheme.unAvailableRadioColor),
+                      )
+                    : null,
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                    vertical: CustomPageTheme.normalPadding),
                 child: Row(
                   children: [
                     Expanded(
                       child: ElevatedButton(
-                      style: TextButton.styleFrom(
-                          minimumSize: const Size(double.infinity, 50),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(
-                                  CoustomBorderTheme.normalBorderRaduis))),
-                      onPressed: getLocation,
-                      child: isLoading == false
-                          ? Text(AppLocalizations.of(context)!.yourCurrentLocation)
-                          : const CircularProgressIndicator(
-                              color: Colors.white,
-                            ),
-                                      ),
+                        style: TextButton.styleFrom(
+                            minimumSize: const Size(double.infinity, 50),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(
+                                    CoustomBorderTheme.normalBorderRaduis))),
+                        onPressed: isLoading != true
+                            ? (loadCurrentLocation != true ? getLocation : null)
+                            : null,
+                        child: Text(
+                            AppLocalizations.of(context)!.yourCurrentLocation),
+                      ),
                     ),
-                    const SizedBox(width: CustomPageTheme.normalPadding,),
+                    const SizedBox(
+                      width: CustomPageTheme.normalPadding,
+                    ),
                     Expanded(
                       child: ElevatedButton(
-                      style: TextButton.styleFrom(
-                          minimumSize: const Size(double.infinity, 50),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(
-                                  CoustomBorderTheme.normalBorderRaduis))),
-                      onPressed: (){},
-                      child: isLoading == false 
-                          ? Text(AppLocalizations.of(context)!.map)
-                          : const CircularProgressIndicator(
-                              color: Colors.white,
-                            ),
-                                      ),
+                          style: TextButton.styleFrom(
+                              minimumSize: const Size(double.infinity, 50),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(
+                                      CoustomBorderTheme.normalBorderRaduis))),
+                          onPressed: isLoading != true ? pickLocation : null,
+                          child: Text(AppLocalizations.of(context)!.map)),
                     ),
                   ],
                 ),
@@ -407,28 +459,29 @@ class _AddWarehousePostState extends ConsumerState<AddWarehousePost> {
                         ),
                 ),
               if (currentUserId == null)
-                SettingsButtons(suffixIcon: const Icon(null), buttonsStyles: [
-                  ButtonStyle(
-                      foregroundColor:
-                          WidgetStateProperty.all<Color>(Colors.white),
-                      backgroundColor: WidgetStateProperty.all<Color>(
-                          CustomColorsTheme.unAvailableRadioColor),
-                      shape: WidgetStateProperty.all<RoundedRectangleBorder>(
-                        RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(
-                              CoustomBorderTheme.normalBorderRaduis),
+                SettingsButtons(
+                  suffixIcon: const Icon(null),
+                  buttonsStyles: [
+                    ButtonStyle(
+                        foregroundColor:
+                            MaterialStateProperty.all<Color>(Colors.white),
+                        backgroundColor: MaterialStateProperty.all<Color>(
+                            CustomColorsTheme.unAvailableRadioColor),
+                        shape:
+                            MaterialStateProperty.all<RoundedRectangleBorder>(
+                          RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(
+                                CoustomBorderTheme.normalBorderRaduis),
+                          ),
                         ),
-                      ),
-                      side: WidgetStateProperty.all(const BorderSide(
-                          width: 1.5,
-                          color: CustomColorsTheme.unAvailableRadioColor))),
-                ], buttonsFunctions: [
-                  go
-                ], buttonsPrefixIcons: const [
-                  Icon(Icons.login)
-                ], buttonsText: [
-                  AppLocalizations.of(context)!.signIn
-                ]),
+                        side: MaterialStateProperty.all(const BorderSide(
+                            width: 1.5,
+                            color: CustomColorsTheme.unAvailableRadioColor))),
+                  ],
+                  buttonsFunctions: [go],
+                  buttonsPrefixIcons: const [Icon(Icons.login)],
+                  buttonsText: [AppLocalizations.of(context)!.signIn],
+                ),
             ],
           ),
         ),

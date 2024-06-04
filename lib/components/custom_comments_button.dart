@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:masahaty/components/signin_first.dart';
 import 'package:masahaty/provider/change_language.dart';
 import 'package:masahaty/provider/current_user.dart';
 import 'package:masahaty/services/dio_comments.dart';
@@ -15,7 +16,6 @@ class CustomCommentsButton extends StatelessWidget {
     required this.id,
   });
   final String id;
-
   @override
   Widget build(BuildContext context) {
     return IconButton(
@@ -68,7 +68,7 @@ class _CommentSectionState extends ConsumerState<CommentSection> {
 
   Future<void> fetchData() async {
     dynamic temp = await commentsService.commentsGetById(
-        token: currentUser.token, id: widget.id);
+        token: currentUser?.token, id: widget.id);
     setState(() {
       comments = temp;
     });
@@ -77,7 +77,9 @@ class _CommentSectionState extends ConsumerState<CommentSection> {
   @override
   void initState() {
     super.initState();
-    fetchData();
+    if(currentUser?.token != null) {
+      fetchData();
+    }
     _focusNode.addListener(_onFocusChange);
   }
 
@@ -136,7 +138,7 @@ class _CommentSectionState extends ConsumerState<CommentSection> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    return currentUser?.token != null ? Padding(
       padding: EdgeInsets.only(
         bottom: MediaQuery.of(context).viewInsets.bottom,
       ),
@@ -204,7 +206,7 @@ class _CommentSectionState extends ConsumerState<CommentSection> {
           ],
         ),
       ),
-    );
+    ) : SignInFirst(context);
   }
 
   Widget _buildCommentItem(Comment comment, int index) {

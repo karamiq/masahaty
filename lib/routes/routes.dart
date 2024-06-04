@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:masahaty/pages/order_detailes_page/order_detailes_page.dart';
 import 'package:masahaty/pages/orders_management_page/orders_management_page.dart';
 import 'package:masahaty/pages/add_warehouse/add_warehouse.dart';
@@ -12,6 +13,7 @@ import 'package:masahaty/pages/my_posts_page/my_post_page.dart';
 import 'package:masahaty/pages/notifications_page/notifications_page.dart';
 import 'package:masahaty/pages/profile_page/profile_page.dart';
 import 'package:masahaty/pages/register_page/register_page.dart';
+import '../pages/google_maps_page/pick_your_location.dart';
 import '../pages/home_page/home_page.dart';
 import '../pages/login_page/login_page.dart';
 import '../pages/tabs_page/tabs_page.dart';
@@ -46,7 +48,7 @@ class AppRouter {
         path: Routes.googleMapsPage,
         name: Routes.googleMapsPage,
         builder: (BuildContext context, GoRouterState state) =>
-            GoogleMapsPage(),
+            const GoogleMapsPage(),
       ),
       GoRoute(
         path: Routes.notificationsPage,
@@ -144,13 +146,24 @@ class AppRouter {
         path: Routes.ordersDetailesPage,
         name: Routes.ordersDetailesPage,
         builder: (BuildContext context, GoRouterState state) =>
-            const OrderDetailesPage(id: '',),
+            const OrderDetailesPage(
+          id: '',
+        ),
+      ),
+      GoRoute(
+        path: Routes.pickLocation,
+        name: Routes.pickLocation,
+        builder: (BuildContext context, GoRouterState state) =>
+            const PickYourLocation(
+          defaultLocation: LatLng(33.312805, 44.361488),
+        ),
       ),
     ],
   );
 }
 
 class Routes {
+  static const pickLocation = '/pick_location';
   static const ordersDetailesPage = '/orders_detailes_page';
   static const ordersManagementPage = "/orders_management_page";
   static const warehouseFilteringPage = "/warehouse_filtering_page";
@@ -162,7 +175,7 @@ class Routes {
   static const wharehouseReserveFormPage = '/reserv_from_Page';
   static const warehouseInfoPage = '/info_page';
   static const registerPage = '/register';
-  static const logIn = '/Log_in';
+  static const logIn = '/log_in';
   static const addPostPage = '/add_post';
   static const gettingStated = '/getting_started';
   static const homePage = '/home_page';

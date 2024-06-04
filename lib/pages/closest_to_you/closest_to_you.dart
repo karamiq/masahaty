@@ -16,7 +16,7 @@ class MorePage extends ConsumerWidget {
           backgroundColor: CustomColorsTheme.scaffoldBackGroundColor,
           leading: const Padding(
             padding: EdgeInsets.all(CustomPageTheme.smallPadding),
-            child: customBackButton(),
+            child: CustomBackButton(),
           ),
         ),
         body: ListView.separated(

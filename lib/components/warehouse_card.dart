@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_gen/gen_l10n/app_localization.dart';
 import 'package:masahaty/components/custom_favorites_button.dart';
-import 'package:masahaty/components/rating_button.dart';
+import 'package:masahaty/components/custom_rating_button.dart';
 import 'package:masahaty/pages/wharehouse_pages/warehouse_details_page.dart';
 import '../core/constants/constants.dart';
 
@@ -79,7 +79,7 @@ class WarehouseCard extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       CustomFavoritesButton(id: id),
-                      RatingButton(warehouseRating: rating, id:id)
+                      CustomRatingButton(warehouseRating: rating, id:id)
                     ],
                    ),
                  )

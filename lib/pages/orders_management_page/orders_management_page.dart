@@ -142,7 +142,7 @@ class _OrdersManagementPageState extends ConsumerState<OrdersManagementPage> {
           backgroundColor: CustomColorsTheme.scaffoldBackGroundColor,
           leading: const Padding(
             padding: EdgeInsets.all(CustomPageTheme.smallPadding),
-            child: customBackButton(),
+            child: CustomBackButton(),
           ),
           title: Text(AppLocalizations.of(context)!.orderManagement),
           centerTitle: true,

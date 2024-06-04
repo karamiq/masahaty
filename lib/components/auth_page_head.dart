@@ -52,7 +52,7 @@ class PageHead extends StatelessWidget {
         ),     
          const Padding(
            padding: EdgeInsets.symmetric(horizontal: CustomPageTheme.normalPadding ,vertical:  CustomPageTheme.meduimPadding *1.5),
-           child: customBackButton(),
+           child: CustomBackButton(),
          ),    
       ],
     );

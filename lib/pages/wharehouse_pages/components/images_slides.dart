@@ -5,7 +5,7 @@ import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import '../../../components/custom_back_botton.dart';
 import '../../../components/custom_comments_button.dart';
 import '../../../components/custom_favorites_button.dart';
-import '../../../components/rating_button.dart';
+import '../../../components/custom_rating_button.dart';
 import '../../../core/constants/constants.dart';
 
 class WarehouseCarousel extends StatefulWidget {
@@ -75,12 +75,12 @@ class _WarehouseCarouselState extends State<WarehouseCarousel> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const customBackButton(),
+                const CustomBackButton(),
                 Row(
                   children: [
                     CustomCommentsButton(id: widget.id),
                     CustomFavoritesButton(id: widget.id),
-                    RatingButton(warehouseRating: widget.rating, id: widget.id),
+                    CustomRatingButton(warehouseRating: widget.rating, id: widget.id),
                   ],
                 )
               ],

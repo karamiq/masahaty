@@ -135,41 +135,28 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                   controller: phoneNumberController,
                   validator: validatePhoneNumber,
                 ),
-                const SizedBox(
-                  height: CustomPageTheme.bigPadding,
-                ),
-                Row(
-                  children: [
-                    const Expanded(
-                        child: Divider(
-                      indent: 20,
-                      endIndent: 10,
-                      color: Colors.grey,
-                    )),
-                    Text(
-                      AppLocalizations.of(context)!.or,
-                    ),
-                    const Expanded(
-                        child: Divider(
-                      indent: 10,
-                      endIndent: 20,
-                      color: Colors.grey,
-                    )),
-                  ],
-                ),
-                const SizedBox(
-                  height: CustomPageTheme.bigPadding,
-                ),
                 Center(
-                  child: TextButton(
-                      onPressed: () => context.pushNamed(Routes.logIn),
-                      child: Text(
-                        AppLocalizations.of(context)!.signIn,
-                        style: const TextStyle(
-                          color: CustomColorsTheme.headLineColor,
-                          fontWeight: CustomFontsTheme.bigWeight,
-                        ),
-                      )),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                       Text(
+                            AppLocalizations.of(context)!.doYouHaveAnAccount,
+                            style: const TextStyle(
+                              color: CustomColorsTheme.descriptionColor,
+                              fontWeight: CustomFontsTheme.bigWeight,
+                            ),
+                          ),
+                      TextButton(
+                          onPressed: () => context.pushNamed(Routes.logIn),
+                          child: Text(
+                            AppLocalizations.of(context)!.signIn,
+                            style: const TextStyle(
+                              color: CustomColorsTheme.headLineColor,
+                              fontWeight: CustomFontsTheme.bigWeight,
+                            ),
+                          )),
+                    ],
+                  ),
                 ),
               ],
             ),

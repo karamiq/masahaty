@@ -1,17 +1,16 @@
 import 'dart:async';
-import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:masahaty/components/custom_search_text_field.dart';
 import 'package:masahaty/components/shimmer_container.dart';
+import 'package:masahaty/models/storage&features_model.dart';
 import 'package:masahaty/provider/current_user.dart';
 import 'package:masahaty/services/dio_bookmark.dart';
 import 'package:flutter_gen/gen_l10n/app_localization.dart';
 import '../../core/constants/assets.dart';
 import '../../core/constants/constants.dart';
-import '../../models/storage&features_model.dart';
 import '../../services/dio_storage.dart';
 import 'components/marked_warehouse_info.dart';
 
@@ -28,7 +27,7 @@ class _GoogleMapsPageState extends ConsumerState<GoogleMapsPage> {
   get currentUserToken => ref.read(currentUserProvider)?.token;
   final bookmarkService = BookmarkService();
   late GoogleMapController mapController;
-  final Map<String, Marker> _markers = {};
+  Map<String, Marker> markers = {};
 
   List<Storage> allWarehouses = [];
 
@@ -47,7 +46,7 @@ class _GoogleMapsPageState extends ConsumerState<GoogleMapsPage> {
 
   void _filterMarkers(String searchText) {
     setState(() {
-      filteredMarkers = _markers.values
+      filteredMarkers = markers.values
           .where((marker) => marker.infoWindow.title!
               .toLowerCase()
               .contains(searchText.toLowerCase()))
@@ -105,38 +104,101 @@ class _GoogleMapsPageState extends ConsumerState<GoogleMapsPage> {
             liteModeEnabled: false,
             initialCameraPosition:
                 const CameraPosition(target: myPos, zoom: 13),
-            markers: _markers.values.toSet(),
+            markers: markers.values.toSet(),
           ),
           Positioned(
             top: 50.0,
             left: 15.0,
             right: 15.0,
             child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(
-                    CoustomBorderTheme.normalBorderRaduis),
-              ),
-              child: CoustomSearchTextField(
-                prefixIcon: Icons.search,
-                labelText: AppLocalizations.of(context)!.search,
-                controller: searchController,
-                onChange: _filterMarkers,
-              ),
-            ),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(
+                      CoustomBorderTheme.normalBorderRaduis),
+                ),
+                child: Autocomplete<Storage>(
+  optionsViewOpenDirection: OptionsViewOpenDirection.down,
+  optionsBuilder: (textEditingValue) {
+    return allWarehouses
+        .where((storage) => storage.name
+        .toLowerCase()
+        .contains(textEditingValue.text.toLowerCase()))
+        .toList();
+  },
+  displayStringForOption: (storage) => storage.name,
+  onSelected: (option) {
+    final selectedMarker = markers[option.id];
+    if (selectedMarker != null) {
+      mapController
+          .animateCamera(
+        CameraUpdate.newCameraPosition(
+          CameraPosition(
+            target: LatLng(option.latitude, option.longitude),
+            zoom: 15,
+          ),
+        ),
+      )
+          .then((_) {
+        setState(() {
+          markers[option.id] = selectedMarker.copyWith(
+            infoWindowParam:
+            selectedMarker.infoWindow.copyWith(),
+          );
+        });
+      });
+    }
+  },
+  optionsViewBuilder: (context, onSelected, options) {
+    return Align(
+      alignment: Alignment.topCenter,
+      child: Container(
+        width: MediaQuery.of(context).size.width,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(CoustomBorderTheme.normalBorderRaduis),
+          border: Border.all(width: CoustomBorderTheme.borderWidth, color: CustomColorsTheme.handColor)
+        ),
+        child: ListView.builder(
+          padding: const EdgeInsets.all(0),
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: 3,
+          itemBuilder: (context, index) {
+            final storage = options.elementAt(index);
+            return ListTile(
+              title: Text(storage.name),
+              onTap: () {
+                onSelected(storage);
+              },
+            );
+          },
+        ),
+      ),
+    );
+  },
+  fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) {
+    return TextField(
+      controller: controller,
+      focusNode: focusNode,
+      onSubmitted: (d){},
+      decoration:  InputDecoration(
+        hintText: AppLocalizations.of(context)!.search,
+        prefixIcon: const Icon(Icons.search, color: CustomColorsTheme.headLineColor,),
+        border: const OutlineInputBorder(),
+      ),
+    );
+  },
+),
+),
           ),
         ],
       );
     }
 
     return Scaffold(
-      resizeToAvoidBottomInset: true,
+      resizeToAvoidBottomInset: false,
       backgroundColor: Colors.transparent,
-      body: GestureDetector(
-        onTap: () => FocusScope.of(context)
-            .unfocus(),
-        child: content,
-      ),
+      body: content,
     );
   }
 
@@ -161,7 +223,7 @@ class _GoogleMapsPageState extends ConsumerState<GoogleMapsPage> {
     );
 
     setState(() {
-      _markers[id] = marker;
+      markers[id] = marker;
     });
   }
 
@@ -198,22 +260,4 @@ class _GoogleMapsPageState extends ConsumerState<GoogleMapsPage> {
   //    throw Exception('ByteData is null');
   //  }
   //}
-}
-
-dynamic getMarkedInfo(
-    {required BuildContext context, required String id}) async {
-  showModalBottomSheet(
-    isScrollControlled: true,
-    showDragHandle: true,
-    enableDrag: true,
-    barrierColor: const ui.Color.fromARGB(90, 0, 0, 0),
-    context: context,
-    builder: (context) => SizedBox(
-      width: double.infinity,
-      height: 400,
-      child: MarkedWarehouseInfo(
-        id: id,
-      ),
-    ),
-  );
 }

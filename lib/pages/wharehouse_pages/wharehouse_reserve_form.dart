@@ -89,7 +89,7 @@ class _WharehouseReserveFormState extends State<WharehouseReserveForm> {
               const SizedBox(height: CustomPageTheme.normalPadding),
               Row(
                 children: [
-                  const customBackButton(),
+                  const CustomBackButton(),
                   const SizedBox(width: CustomPageTheme.smallPadding),
                   Text(AppLocalizations.of(context)!.bookWharehouse),
                 ],

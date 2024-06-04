@@ -128,30 +128,26 @@ class _LogInPageState extends ConsumerState<LogInPage> {
                     formKey: phoneNumberFormKey,
                     validator: validatePhoneNumber,
                   ),
-                  const SizedBox(height: CustomPageTheme.bigPadding),
-                  Row(
+                   Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Expanded(
-                          child: Divider(
-                              indent: 20, endIndent: 10, color: Colors.grey)),
-                      Text(AppLocalizations.of(context)!.or),
-                      const Expanded(
-                          child: Divider(
-                              indent: 10, endIndent: 20, color: Colors.grey)),
+                       Text(
+                            AppLocalizations.of(context)!.youAreNewUser,
+                            style: const TextStyle(
+                              color: CustomColorsTheme.descriptionColor,
+                              fontWeight: CustomFontsTheme.bigWeight,
+                            ),
+                          ),
+                      TextButton(
+                          onPressed: () => context.pushNamed(Routes.registerPage),
+                          child: Text(
+                            AppLocalizations.of(context)!.createAccount,
+                            style: const TextStyle(
+                              color: CustomColorsTheme.headLineColor,
+                              fontWeight: CustomFontsTheme.bigWeight,
+                            ),
+                          )),
                     ],
-                  ),
-                  const SizedBox(height: CustomPageTheme.bigPadding),
-                  Center(
-                    child: TextButton(
-                      onPressed: () => context.pushNamed(Routes.registerPage),
-                      child: Text(
-                        AppLocalizations.of(context)!.createAccount,
-                        style: const TextStyle(
-                          color: CustomColorsTheme.headLineColor,
-                          fontWeight: CustomFontsTheme.bigWeight,
-                        ),
-                      ),
-                    ),
                   ),
                 ],
               ),

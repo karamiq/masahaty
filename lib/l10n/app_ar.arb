@@ -149,7 +149,12 @@
   "empty":"فارغة",
   "orderManagement":"أدارة الحجوزات",
   "owner":"المالك",
-  "finishOrder": "انهاء الحجز"
+  "finishOrder": "انهاء الحجز",
+  "pickLocation": "حدد الموقع",
+  "m": "م",
+  
+  "doYouHaveAnAccount":"هل لديك حساب؟",
+  "youAreNewUser": "أنت مستخدم جديد؟"
   
      
 }

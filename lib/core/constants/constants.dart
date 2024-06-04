@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+ 
+  LatLng defaultLocation = const LatLng(33.312805, 44.361488);
 class CustomPageTheme {
   static const double veryBigpadding = 28;
   static const double bigPadding = 24;

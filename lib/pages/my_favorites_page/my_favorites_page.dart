@@ -49,7 +49,7 @@ class MyFavoritesPage extends ConsumerWidget {
           backgroundColor: CustomColorsTheme.scaffoldBackGroundColor,
           leading: const Padding(
             padding: EdgeInsets.all(CustomPageTheme.smallPadding),
-            child: customBackButton(),
+            child: CustomBackButton(),
           ),
            title: Text(AppLocalizations.of(context)!.myFavorites),
           centerTitle: true,
