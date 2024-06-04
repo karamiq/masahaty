@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:masahaty/components/custom_back_botton.dart';
 import 'package:masahaty/core/constants/constants.dart';
-import 'package:masahaty/models/warehouse_model.dart';
+import 'package:masahaty/models/storage&features_model.dart';
 import '../../components/warehouse_card.dart';
+import '../../models/order_model.dart';
 
 class MorePage extends ConsumerWidget {
-  final List<Warehouse> colsestToYou;
+  final List<Storage> colsestToYou;
   const MorePage(this.colsestToYou, {super.key});
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -32,8 +33,8 @@ class MorePage extends ConsumerWidget {
               return WarehouseCard(
                   rating: colsestToYou[index].rating,
                   id: colsestToYou[index].id,
-                  governorate: colsestToYou[index].city['govName'],
-                  district: colsestToYou[index].city['name'],
+                  governorate: colsestToYou[index].city!.govName,
+                  district: colsestToYou[index].city!.name,
                   title: colsestToYou[index].name,
                   discription: colsestToYou[index].description,
                   imagePath: colsestToYou[index].images[0],

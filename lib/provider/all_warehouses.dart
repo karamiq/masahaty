@@ -1,13 +1,15 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:masahaty/models/warehouse_model.dart';
+import 'package:masahaty/models/storage&features_model.dart';
 
-class AllWarehousesNotifier extends StateNotifier<List<Warehouse>?> {
+import '../models/order_model.dart';
+
+class AllWarehousesNotifier extends StateNotifier<List<Storage>?> {
   AllWarehousesNotifier() : super(const []);
 
-   Future<void> getAllWarehouses(List<Warehouse>? list) async {
+   Future<void> getAllWarehouses(List<Storage>? list) async {
     state = list;
   }
 }
 final allWarehousesPorvider =
-    StateNotifierProvider<AllWarehousesNotifier, List<Warehouse>?>(
+    StateNotifierProvider<AllWarehousesNotifier, List<Storage>?>(
         (ref) => AllWarehousesNotifier());

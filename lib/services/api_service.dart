@@ -26,7 +26,6 @@ class EndPoints {
   static const String notifications = 'notifications';
   static const String rate = '/rate';
   static const String orderAccept = ' /accept';
-  static const String orderApprove = '/approve';
   static const String orderReject = ' /reject';
   static const String orderFinish = ' /finish';
   static const String comments = "/comments/";

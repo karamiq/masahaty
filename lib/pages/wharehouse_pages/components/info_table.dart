@@ -3,25 +3,25 @@ import 'package:flutter/material.dart';
 import 'package:masahaty/pages/wharehouse_pages/components/detailes_table_row.dart';
 import 'package:flutter_gen/gen_l10n/app_localization.dart';
 import '../../../core/constants/constants.dart';
+import '../../../models/storage&features_model.dart';
 
 class InfoTable extends StatelessWidget {
-  const InfoTable({super.key,
+   InfoTable({super.key,
   required this.currentLanguage,
   required this.currentWarehouse,
    required this.features,
    });
-  final currentLanguage;
-  final currentWarehouse;
-  final List<Map<String, dynamic>> features; 
+  final dynamic currentLanguage;
+  final Storage currentWarehouse;
+   List<StorageFeature> features = []; 
   @override
   Widget build(BuildContext context) {
     Text findFeatureWidget(String featureName) {
-      Map<String, dynamic> feature = features.firstWhere(
-        (feature) => feature['name'] == featureName,
-        orElse: () => {"name": "", "id": ""},
+      StorageFeature feature = features.firstWhere(
+        (feature) => feature.name == featureName,orElse: ()=>StorageFeature(id: '', name: ''),
       );
 
-      if (feature.isNotEmpty && feature["name"] == featureName) {
+      if (!feature.isEmpty() && feature.name == featureName) {
         return Text(
           AppLocalizations.of(context)!.avialble,
           style: const TextStyle(
@@ -55,7 +55,7 @@ class InfoTable extends StatelessWidget {
             ),
             titelText: AppLocalizations.of(context)!.space,
             currentLanguage: currentLanguage,
-            titleIfo: Text(currentWarehouse!.space.toString())),
+            titleIfo: Text(currentWarehouse.space.toString())),
         DetailsTableRow(
             titelIcon: const Icon(
               Icons.house_outlined,
@@ -63,7 +63,7 @@ class InfoTable extends StatelessWidget {
             ),
             titelText: AppLocalizations.of(context)!.numberOfRooms,
             currentLanguage: currentLanguage,
-            titleIfo: Text(currentWarehouse!.numberOfRooms.toString())),
+            titleIfo: Text(currentWarehouse.numberOfRooms.toString())),
         DetailsTableRow(
             titelIcon: const Icon(
               Icons.camera,

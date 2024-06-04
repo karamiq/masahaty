@@ -20,7 +20,7 @@ class NotificationsPage extends ConsumerStatefulWidget {
 
 class _NotificationsPageState extends ConsumerState<NotificationsPage> {
   get currentLanguage => ref.read(currentLanguageProvider);
-  get token => ref.read(currentUserProvider)?.token;
+  dynamic token;
   OrderService orderService = OrderService();
    List<Notif>? previousNotifs;
   Set<String> previousIds = Set();
@@ -53,6 +53,7 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
   @override
   void initState() {
     super.initState();
+     token = ref.read(currentUserProvider)?.token;
     checkForNewNotifications();
   }
 

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localization.dart';
 import '../../../components/viewed_item_title.dart';
 import '../../../core/constants/constants.dart';
-import '../../../models/warehouse_model.dart';
+import '../../../models/storage&features_model.dart';
 
 class WarehouseTitleAndPrice extends StatelessWidget {
   const WarehouseTitleAndPrice({
@@ -12,7 +12,7 @@ class WarehouseTitleAndPrice extends StatelessWidget {
     required this.formattedPrice,
   });
 
-  final Warehouse? currentWarehouse;
+  final Storage currentWarehouse;
   final dynamic formattedPrice;
 
   @override
@@ -22,7 +22,7 @@ class WarehouseTitleAndPrice extends StatelessWidget {
       children: [
         ViewedItemsTitle(
           padding: const EdgeInsets.all(0),
-          mainText: currentWarehouse!.name,
+          mainText: currentWarehouse.name,
         ),
         Row(
           children: [

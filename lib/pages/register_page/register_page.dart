@@ -8,7 +8,7 @@ import 'package:masahaty/routes/routes.dart';
 import '../../components/auth_page_head.dart';
 import '../../components/custom_text_from_field.dart';
 import '../../components/uuid_shortener.dart';
-import '../../models/user.dart';
+import '../../models/current_user.dart';
 import '../../provider/current_user.dart';
 import '../../services/api_service.dart';
 import '../../services/dio_auth.dart';

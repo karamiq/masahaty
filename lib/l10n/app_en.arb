@@ -147,7 +147,10 @@
   "show":"Show",
   "hide":"Hide",
   "noComments":"There is no comments",
-  "empty":"empty"
+  "empty":"empty",
+  "orderManagement": "Order management",
+  "owner":"Owner",
+  "finishOrder":"End reservation"
 
 
   

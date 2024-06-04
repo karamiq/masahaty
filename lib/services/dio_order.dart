@@ -1,6 +1,5 @@
 import 'package:dio/dio.dart';
 import 'package:masahaty/models/order_model.dart';
-import 'package:masahaty/models/warehouse_model.dart';
 import 'package:masahaty/services/api_service.dart';
 
 class OrderService {
@@ -45,73 +44,76 @@ class OrderService {
     }
   }
 
-  Future<Warehouse> orderGetById({required String id}) async {
-    Response response = await ApiService.dio.get(EndPoints.ordersId + id);
-    if (response.statusCode == 200) {
-      Warehouse data = Warehouse.fromJson(response.data);
-      return data;
-    } else {
-      throw Exception(response.statusCode);
+  Future<Order?> orderGetById({required String id}) async {
+    try {
+      Response response = await ApiService.dio.get(EndPoints.ordersId + id);
+      if (response.statusCode == 200) {
+        Order data = Order.fromJson(response.data);
+        return data;
+      } else {
+        print(response.statusCode);
+      }
+    } catch (e) {
+      print(e);
+      return null;
     }
-  }
-
-  Future<void> orderApprove({required String token, required String id}) async {
-    Response response = await ApiService.dio.put(
-      EndPoints.ordersId + id + EndPoints.orderApprove,
-      options: Options(
-        headers: {
-          'Authorization': 'Bearer $token',
-        },
-      ),
-    );
-    print(response.data);
-    if (response.statusCode != 200) {
-      throw Exception(response.statusCode);
-    }
+    return null;
   }
 
   Future<void> orderAccept({required String token, required String id}) async {
-    Response response = await ApiService.dio.put(
-      EndPoints.ordersId + id + EndPoints.orderAccept,
-      options: Options(
-        headers: {
-          'Authorization': 'Bearer $token',
-        },
-      ),
-    );
-    print(response.data);
-    if (response.statusCode != 200) {
-      throw Exception(response.statusCode);
+    try {
+      Response response = await ApiService.dio.put(
+        EndPoints.ordersId + id + EndPoints.orderAccept,
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+          },
+        ),
+      );
+      print(response.data);
+      if (response.statusCode != 200) {
+        throw Exception(response.statusCode);
+      }
+    } catch (e) {
+      print(e);
     }
   }
 
   Future<void> orderReject({required String token, required String id}) async {
-    Response response = await ApiService.dio.put(
-      EndPoints.ordersId + id + EndPoints.orderReject,
-      options: Options(
-        headers: {
-          'Authorization': 'Bearer $token',
-        },
-      ),
-    );
-    print(response.data);
-    if (response.statusCode != 200) {
-      throw Exception(response.statusCode);
+    try {
+      Response response = await ApiService.dio.put(
+        EndPoints.ordersId + id + EndPoints.orderReject,
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+          },
+        ),
+      );
+      print(response.data);
+      if (response.statusCode != 200) {
+        throw Exception(response.statusCode);
+      }
+    } catch (e) {
+      print(e);
     }
   }
 
   Future<void> orderFinish({required String token, required String id}) async {
-    Response response = await ApiService.dio.put(
-      EndPoints.ordersId + id + EndPoints.orderFinish,
-      options: Options(
-        headers: {
-          'Authorization': 'Bearer $token',
-        },
-      ),
-    );
-    print(response.data);
-    if (response.statusCode != 200) {
-      throw Exception(response.statusCode);
+    try {
+      Response response = await ApiService.dio.put(
+        EndPoints.ordersId + id + EndPoints.orderFinish,
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+          },
+        ),
+      );
+      print(response.data);
+      if (response.statusCode != 200) {
+        throw Exception(response.statusCode);
+      }
+    } catch (e) {
+      print(e);
     }
   }
 }

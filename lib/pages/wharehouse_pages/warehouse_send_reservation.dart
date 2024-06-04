@@ -11,7 +11,7 @@ import 'package:masahaty/provider/current_user.dart';
 import '../../components/custom_back_botton.dart';
 import '../../components/viewed_item_title.dart';
 import '../../core/constants/constants.dart';
-import '../../models/warehouse_model.dart';
+import '../../models/storage&features_model.dart';
 import '../../services/dio_order.dart';
 import '../../services/dio_storage.dart';
 import 'components/order_info.dart';
@@ -39,12 +39,12 @@ class WarehouseSendReservation extends ConsumerStatefulWidget {
 class _WarehouseSendReservationState
     extends ConsumerState<WarehouseSendReservation> {
   get currentUserToken => ref.read(currentUserProvider)?.token;
-  Warehouse? currentWarehouse;
+  Storage? currentWarehouse;
   final orderService = OrderService();
   Future<void> getDetails() async {
     try {
       StorageService storageService = StorageService();
-      Warehouse temp = await storageService.storageGetById(id: widget.id);
+      Storage temp = await storageService.storageGetById(id: widget.id);
       setState(() {
         currentWarehouse = temp;
       });

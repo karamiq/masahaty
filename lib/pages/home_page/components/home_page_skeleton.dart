@@ -15,7 +15,7 @@ class HomPageSkeleton extends StatelessWidget {
     return Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          const SizedBox(height: CustomPageTheme.veryBigpadding + CustomPageTheme.smallPadding,),
+          const SizedBox(height: CustomPageTheme.veryBigpadding + CustomPageTheme.normalPadding,),
           SizedBox(
             height: 347,
             child: ListView.separated(

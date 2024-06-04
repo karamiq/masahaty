@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:masahaty/components/uuid_shortener.dart';
 import 'package:masahaty/core/constants/constants.dart';
 import 'package:flutter_gen/gen_l10n/app_localization.dart';
-import 'package:masahaty/models/user.dart';
+import 'package:masahaty/models/current_user.dart';
 import 'package:masahaty/provider/current_user.dart';
 import 'package:masahaty/routes/routes.dart';
 import 'package:masahaty/services/api_service.dart';

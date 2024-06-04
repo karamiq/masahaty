@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:masahaty/components/custom_back_botton.dart';
 import 'package:masahaty/components/warehouse_card.dart';
 import 'package:masahaty/components/warehouse_card_skeleton.dart';
+import 'package:masahaty/models/order_model.dart';
 import 'package:masahaty/services/dio_features.dart';
 import 'package:masahaty/services/dio_storage.dart';
 
 import '../../core/constants/constants.dart';
-import '../../models/warehouse_model.dart';
+import '../../models/storage&features_model.dart';
 
 class WarehouseFilteringPage extends StatefulWidget {
   const WarehouseFilteringPage({super.key, required this.filtringType});
@@ -19,16 +20,16 @@ class WarehouseFilteringPage extends StatefulWidget {
 class _WarehouseFilteringPageState extends State<WarehouseFilteringPage> {
   FeaturesService featuresService = FeaturesService();
   StorageService storageService = StorageService();
-  List<Warehouse> filteredList = [];
+  List<Storage> filteredList = [];
 
   Future<void> fetchData() async {
     setState(() {});
-    List<Warehouse> temp = [];
+    List<Storage> temp = [];
     final featureId = await featuresService.featuresGet(widget.filtringType);
     final data = await storageService.storageGet();
     for (var warehouse in data) {
       for (var feature in warehouse.storageFeatures) {
-        if (feature['id'] == featureId) {
+        if (feature.id == featureId) {
           temp.add(warehouse);
           break;
         }
@@ -56,8 +57,8 @@ class _WarehouseFilteringPageState extends State<WarehouseFilteringPage> {
         physics: const AlwaysScrollableScrollPhysics(),
         itemCount: filteredList.length,
         itemBuilder: (context, index) => WarehouseCard(
-          governorate: filteredList[index].city['govName'],
-          district: filteredList[index].city['name'],
+          governorate: filteredList[index].city!.govName,
+          district: filteredList[index].city!.name,
           title: filteredList[index].name,
           discription: filteredList[index].description,
           imagePath: filteredList[index].images[0],

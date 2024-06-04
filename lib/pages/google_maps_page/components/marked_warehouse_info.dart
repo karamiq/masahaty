@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import '../../../core/constants/constants.dart';
-import '../../../models/warehouse_model.dart';
+import '../../../models/order_model.dart';
+import '../../../models/storage&features_model.dart';
 import '../../../services/dio_storage.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter_gen/gen_l10n/app_localization.dart';
@@ -19,13 +20,12 @@ class MarkedWarehouseInfo extends StatefulWidget {
 
 class _MarkedWarehouseInfoState extends State<MarkedWarehouseInfo> {
   StorageService storageService = StorageService();
-  Warehouse? markedWarehouse;
+  Storage? markedWarehouse;
 
   void getMarkedWarehouse() async {
     markedWarehouse = await storageService.storageGetById(id: widget.id);
     setState(() {});
   }
-
   @override
   void initState() {
     super.initState();
@@ -89,7 +89,7 @@ class _MarkedWarehouseInfoState extends State<MarkedWarehouseInfo> {
 }
 
 
-  Widget buildIndicator({required Warehouse markedWarehouse ,required int index}) => AnimatedSmoothIndicator(
+  Widget buildIndicator({required Storage markedWarehouse ,required int index}) => AnimatedSmoothIndicator(
         effect: const ExpandingDotsEffect(
           expansionFactor: 3,
           spacing: 5,

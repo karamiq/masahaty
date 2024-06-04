@@ -1,25 +1,25 @@
 import 'package:dio/dio.dart';
 import 'package:masahaty/services/api_service.dart';
-import '/models/warehouse_model.dart';
+import '../models/storage&features_model.dart';
 
 class StorageService {
-  late List<Warehouse> storages = [];
+  late List<Storage> storages = [];
   
-  Future<List<Warehouse>> storageGet() async {
+  Future<List<Storage>> storageGet() async {
     try {
       Response response = await ApiService.dio.get(EndPoints.storage);
       List<dynamic> data = response.data[ApiKey.data];
-      storages = data.map((item) => Warehouse.fromJson(item)).toList();
+      storages = data.map((item) => Storage.fromJson(item)).toList();
       return storages;
     } catch (e) {
       return [];
     }
   }
-  Future<Warehouse> storageGetById({required String id}) async {
+  Future<Storage> storageGetById({required String id}) async {
     try {
       Response response = await ApiService.dio.get(EndPoints.storageId + id);
       if (response.statusCode == 200) {
-        Warehouse data = Warehouse.fromJson(response.data);
+        Storage data = Storage.fromJson(response.data);
         return data;
       } else {
         throw Exception(response.statusCode);

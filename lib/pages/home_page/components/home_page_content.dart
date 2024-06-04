@@ -6,7 +6,7 @@ import 'package:flutter_gen/gen_l10n/app_localization.dart';
 import '../../../components/viewed_item_title.dart';
 import '../../../components/warehouse_card.dart';
 import '../../../core/constants/constants.dart';
-import '../../../models/warehouse_model.dart';
+import '../../../models/storage&features_model.dart';
 
 class HomePageContent extends StatelessWidget {
   const HomePageContent({
@@ -15,8 +15,8 @@ class HomePageContent extends StatelessWidget {
     required this.storagesClosestToYou,
   });
 
-  final List<Warehouse>? storagesRecentlyAdded;
-  final List<Warehouse>? storagesClosestToYou;
+  final List<Storage>? storagesRecentlyAdded;
+  final List<Storage>? storagesClosestToYou;
 
   @override
   Widget build(BuildContext context) {
@@ -39,12 +39,12 @@ class HomePageContent extends StatelessWidget {
                   ),
                   scrollDirection: Axis.horizontal,
                   itemBuilder: (context, index) {
-                    Warehouse warehouse = storagesRecentlyAdded![index];
+                    Storage warehouse = storagesRecentlyAdded![index];
                     return WarehouseCard(
                       rating: warehouse.rating,
                       id: warehouse.id,
-                      governorate: warehouse.city['govName'],
-                      district: warehouse.city['name'],
+                      governorate: warehouse.city!.govName,
+                      district: warehouse.city!.name,
                       title: warehouse.name,
                       discription: warehouse.description,
                       imagePath: warehouse.images[0],
@@ -81,12 +81,12 @@ class HomePageContent extends StatelessWidget {
                 ),
                 scrollDirection: Axis.vertical,
                 itemBuilder: (context, index) {
-                  Warehouse warehouse = storagesClosestToYou![index];
+                  Storage warehouse = storagesClosestToYou![index];
                   return WarehouseCard(
                     rating: warehouse.rating,
                     id: warehouse.id,
-                    governorate: warehouse.city['govName'],
-                    district: warehouse.city['name'],
+                    governorate: warehouse.city!.govName,
+                    district: warehouse.city!.name,
                     title: warehouse.name,
                     discription: warehouse.description,
                     imagePath: warehouse.images[0],

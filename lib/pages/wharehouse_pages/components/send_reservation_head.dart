@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../components/viewed_item_title.dart';
 import '../../../core/constants/constants.dart';
-import '../../../models/warehouse_model.dart';
+import '../../../models/storage&features_model.dart';
 
 class SendReservationHead extends StatelessWidget {
   const SendReservationHead({
@@ -10,7 +10,7 @@ class SendReservationHead extends StatelessWidget {
     required this.currentWarehouse,
   });
 
-  final Warehouse? currentWarehouse;
+  final Storage? currentWarehouse;
 
   @override
   Widget build(BuildContext context) {
@@ -80,7 +80,7 @@ class SendReservationHead extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(
                       horizontal: CustomPageTheme.smallPadding),
                   child: Text(
-                    '${currentWarehouse!.city['govName']}, ${currentWarehouse!.address}',
+                    '${currentWarehouse!.city?.govName ?? 'to do here'}, ${currentWarehouse!.address}',
                     style: const TextStyle(
                         color: CustomColorsTheme.descriptionColor),
                   ),

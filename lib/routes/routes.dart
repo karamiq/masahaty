@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:masahaty/pages/order_detailes_page/order_detailes_page.dart';
+import 'package:masahaty/pages/orders_management_page/orders_management_page.dart';
 import 'package:masahaty/pages/add_warehouse/add_warehouse.dart';
 import 'package:masahaty/pages/closest_to_you/closest_to_you.dart';
 import 'package:masahaty/pages/getting_started/getting_started_page.dart';
@@ -128,13 +130,29 @@ class AppRouter {
         path: Routes.warehouseFilteringPage,
         name: Routes.warehouseFilteringPage,
         builder: (BuildContext context, GoRouterState state) =>
-            const WarehouseFilteringPage(filtringType: '',),
+            const WarehouseFilteringPage(
+          filtringType: '',
+        ),
+      ),
+      GoRoute(
+        path: Routes.ordersManagementPage,
+        name: Routes.ordersManagementPage,
+        builder: (BuildContext context, GoRouterState state) =>
+            const OrdersManagementPage(),
+      ),
+      GoRoute(
+        path: Routes.ordersDetailesPage,
+        name: Routes.ordersDetailesPage,
+        builder: (BuildContext context, GoRouterState state) =>
+            const OrderDetailesPage(id: '',),
       ),
     ],
   );
 }
 
 class Routes {
+  static const ordersDetailesPage = '/orders_detailes_page';
+  static const ordersManagementPage = "/orders_management_page";
   static const warehouseFilteringPage = "/warehouse_filtering_page";
   static const morePage = '/more_page';
   static const myBooksPage = '/my_books_page';

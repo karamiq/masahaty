@@ -1,29 +1,18 @@
 import 'dart:async';
-import 'dart:typed_data';
 import 'dart:ui' as ui;
-import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:masahaty/components/custom_search_text_field.dart';
 import 'package:masahaty/components/shimmer_container.dart';
-import 'package:masahaty/components/viewed_item_title.dart';
-import 'package:masahaty/models/warehouse_model.dart';
-import 'package:masahaty/pages/wharehouse_pages/components/images_slides.dart';
 import 'package:masahaty/provider/current_user.dart';
 import 'package:masahaty/services/dio_bookmark.dart';
 import 'package:flutter_gen/gen_l10n/app_localization.dart';
-import 'package:smooth_page_indicator/smooth_page_indicator.dart';
-import '../../components/custom_favorites_button.dart';
-import '../../components/rating_button.dart';
 import '../../core/constants/assets.dart';
 import '../../core/constants/constants.dart';
+import '../../models/storage&features_model.dart';
 import '../../services/dio_storage.dart';
-import '../wharehouse_pages/warehouse_details_page.dart';
-import 'components/custom_marker.dart';
 import 'components/marked_warehouse_info.dart';
 
 class GoogleMapsPage extends ConsumerStatefulWidget {
@@ -39,20 +28,21 @@ class _GoogleMapsPageState extends ConsumerState<GoogleMapsPage> {
   get currentUserToken => ref.read(currentUserProvider)?.token;
   final bookmarkService = BookmarkService();
   late GoogleMapController mapController;
-  final Completer<GoogleMapController> _controller = Completer();
-  Map<String, Marker> _markers = {};
+  final Map<String, Marker> _markers = {};
 
-  List<Warehouse> allWarehouses = [];
+  List<Storage> allWarehouses = [];
 
   Future<void> recentlyAdded() async {
     try {
       StorageService storageService = StorageService();
-      List<Warehouse> temp = await storageService.storageGet();
+      List<Storage> temp = await storageService.storageGet();
       temp.sort((a, b) => b.creationDate.compareTo(a.creationDate));
       setState(() {
         allWarehouses = temp;
       });
-    } catch (e) {}
+    } catch (e) {
+      print(e);
+    }
   }
 
   void _filterMarkers(String searchText) {
@@ -83,7 +73,10 @@ class _GoogleMapsPageState extends ConsumerState<GoogleMapsPage> {
     Widget content;
     if (allWarehouses.isEmpty) {
       content = const Center(
-        child: ShimmerContainer(width: double.infinity,height: double.infinity,),
+        child: ShimmerContainer(
+          width: double.infinity,
+          height: double.infinity,
+        ),
       );
     } else {
       content = Stack(
@@ -107,8 +100,7 @@ class _GoogleMapsPageState extends ConsumerState<GoogleMapsPage> {
             myLocationEnabled: true,
             zoomControlsEnabled: false,
             onTap: (pos) {
-              setState(() {
-              });
+              setState(() {});
             },
             liteModeEnabled: false,
             initialCameraPosition:
@@ -142,7 +134,7 @@ class _GoogleMapsPageState extends ConsumerState<GoogleMapsPage> {
       backgroundColor: Colors.transparent,
       body: GestureDetector(
         onTap: () => FocusScope.of(context)
-            .unfocus(), // Dismiss the keyboard when tapping outside
+            .unfocus(),
         child: content,
       ),
     );

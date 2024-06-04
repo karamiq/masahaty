@@ -1,16 +1,14 @@
 import 'dart:async';
 import 'dart:math';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:masahaty/provider/all_warehouses.dart';
 import 'package:masahaty/provider/current_user.dart';
 import 'package:masahaty/provider/location.dart';
-import 'package:shimmer/shimmer.dart';
 import '../../components/custom_search_text_field.dart';
 import '../../core/constants/constants.dart';
 import 'package:flutter_gen/gen_l10n/app_localization.dart';
-import '../../models/warehouse_model.dart';
+import '../../models/storage&features_model.dart';
 import '../../services/dio_storage.dart';
 import 'components/home_app_bar.dart';
 import 'components/home_page_content.dart';
@@ -28,16 +26,16 @@ class _HomePageState extends ConsumerState<HomePage> {
   get currentUser => ref.watch(currentUserProvider);
   get userLongitude => ref.watch(locationProvider)?.longitude;
   get userLatitdue => ref.watch(locationProvider)?.latitude;
-  List<Warehouse>? storagesRecentlyAdded = [];
-  List<Warehouse>? storagesClosestToYou = [];
-  List<Warehouse>? filteredStorages = [];
+  List<Storage>? storagesRecentlyAdded = [];
+  List<Storage>? storagesClosestToYou = [];
+  List<Storage>? filteredStorages = [];
   final TextEditingController textFiledController = TextEditingController();
   String searchQuery = '';
 
   Future<void> recentlyAdded() async {
     try {
       StorageService storageService = StorageService();
-      List<Warehouse> temp = await storageService.storageGet();
+      List<Storage> temp = await storageService.storageGet();
       temp.sort((a, b) => b.creationDate.compareTo(a.creationDate));
       setState(() {
         storagesRecentlyAdded = temp;
@@ -73,7 +71,7 @@ class _HomePageState extends ConsumerState<HomePage> {
   Future<void> closestToYou() async {
     try {
       StorageService storageService = StorageService();
-      List<Warehouse> temp = await storageService.storageGet();
+      List<Storage> temp = await storageService.storageGet();
 
       if (temp.isEmpty) {
         print("No warehouses found.");

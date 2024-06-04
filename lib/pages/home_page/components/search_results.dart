@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 
 import '../../../components/warehouse_card.dart';
 import '../../../core/constants/constants.dart';
-import '../../../models/warehouse_model.dart';
+import '../../../models/storage&features_model.dart';
 
 class SearchResults extends StatelessWidget {
   const SearchResults({super.key, required this.storages});
 
-  final List<Warehouse>? storages;
+  final List<Storage>? storages;
 
   @override
   Widget build(BuildContext context) {
@@ -22,15 +22,15 @@ class SearchResults extends StatelessWidget {
                 physics: const NeverScrollableScrollPhysics(),
                 itemCount: storages!.length,
                 itemBuilder: (context, index) {
-                  Warehouse warehouse = storages![index];
+                  Storage warehouse = storages![index];
                   return Padding(
                     padding: const EdgeInsets.symmetric(
                         horizontal: CustomPageTheme.normalPadding),
                     child: WarehouseCard(
                         rating: warehouse.rating,
                         id: warehouse.id,
-                        governorate: warehouse.city['govName'],
-                        district: warehouse.city['name'],
+                        governorate: warehouse.city!.govName,
+                        district: warehouse.city!.name,
                         title: warehouse.name,
                         discription: warehouse.description,
                         imagePath: warehouse.images[0],

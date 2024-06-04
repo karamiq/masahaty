@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:masahaty/models/order_model.dart';
+import 'package:masahaty/pages/order_detailes_page/order_detailes_page.dart';
 import 'package:masahaty/provider/current_user.dart';
 import 'package:masahaty/services/dio_order.dart';
 
@@ -25,7 +26,7 @@ class _MyBooksPageState extends ConsumerState<MyBooksPage> {
   void getOrders() async {
     final orders = await orderService.orderGet();
     for (Order order in orders) {
-      if (order.owner.id == currentUserId) {
+      if (order.renter.id == currentUserId) {
         currentBooks.add(order);
       }
     }
@@ -65,10 +66,10 @@ class _MyBooksPageState extends ConsumerState<MyBooksPage> {
                       CoustomBorderTheme.normalBorderRaduis)),
               child: ListTile(
                 onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                    builder: (c) => WarehouseDetailesPage(
-                        id: currentBooks[index].storage.id))),
+                    builder: (c) => OrderDetailesPage(
+                        id: currentBooks[index].id))),
                 title: Text(currentBooks[index].storage.name),
-                subtitle: Text(currentBooks[index].renter.fullName),
+                subtitle: Text("${AppLocalizations.of(context)!.owner}: ${currentBooks[index].owner.fullName}"),
                 leading: CircleAvatar(
                   backgroundImage:
                       NetworkImage(currentBooks[index].storage.images[0]),

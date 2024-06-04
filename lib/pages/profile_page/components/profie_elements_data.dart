@@ -11,24 +11,28 @@ class AccountSettingDate {
   AccountSettingDate(this.context);
 
   void myPosts() => context.pushNamed(Routes.myPostsPage);
-  void myBooks() =>context.pushNamed(Routes.myBooksPage);
-  void myFavorites(){
+  void myBooks() => context.pushNamed(Routes.myBooksPage);
+  void myBooksManageMent() => context.pushNamed(Routes.ordersManagementPage);
+  void myFavorites() {
     context.pushNamed(Routes.myFavoritesPage);
-  } 
+  }
 
   List<VoidCallback> get listFunctions => [
         myPosts,
         myBooks,
+        myBooksManageMent,
         myFavorites,
       ];
   List<Icon> listLeading = [
     const Icon(Icons.edit_note),
+    const Icon(Icons.calendar_today),
     const Icon(Icons.edit_calendar_sharp),
     const Icon(Icons.bookmark_outline_outlined),
   ];
   List<Text> get listTitle => [
         Text(AppLocalizations.of(context)!.myPosts),
         Text(AppLocalizations.of(context)!.myBooking),
+        Text(AppLocalizations.of(context)!.orderManagement),
         Text(AppLocalizations.of(context)!.myFavorites),
       ];
   Icon get trailing => const Icon(
@@ -42,7 +46,6 @@ class ButtonsData {
 
   void createAcount() => context.pushNamed(Routes.registerPage);
   void signIn() => context.pushNamed(Routes.logIn);
-
 
   List<ButtonStyle> buttonsStyles = [
     ButtonStyle(

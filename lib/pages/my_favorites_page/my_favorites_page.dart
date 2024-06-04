@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:masahaty/components/custom_back_botton.dart';
 import 'package:masahaty/core/constants/constants.dart';
-import 'package:masahaty/models/warehouse_model.dart';
+import 'package:masahaty/models/storage&features_model.dart';
 import 'package:flutter_gen/gen_l10n/app_localization.dart';
 import 'package:masahaty/provider/user_favorites.dart';
 import '../../components/warehouse_card.dart';
@@ -13,7 +13,7 @@ class MyFavoritesPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final favorites = ref.watch(favoritesProvider);
     print(favorites);
-    List<Warehouse> currentFavorites = favorites;
+    List<Storage> currentFavorites = favorites;
     Widget content;
     if (currentFavorites.isEmpty) {
       content = Center(
@@ -34,8 +34,8 @@ class MyFavoritesPage extends ConsumerWidget {
             return WarehouseCard(
                 rating: currentFavorites[index].rating,
                 id: currentFavorites[index].id,
-                governorate: currentFavorites[index].city['govName'],
-                district: currentFavorites[index].city['name'],
+                governorate: currentFavorites[index].city!.govName,
+                district: currentFavorites[index].city!.name,
                 title: currentFavorites[index].name,
                 discription: currentFavorites[index].description,
                 imagePath: currentFavorites[index].images[0],

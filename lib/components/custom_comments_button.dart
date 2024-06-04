@@ -1,10 +1,12 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:masahaty/provider/change_language.dart';
 import 'package:masahaty/provider/current_user.dart';
 import 'package:masahaty/services/dio_comments.dart';
 import 'package:flutter_gen/gen_l10n/app_localization.dart';
-import '../../../models/comments_model.dart';
+import '../models/comments&replies_model.dart';
 import '../core/constants/constants.dart';
 
 class CustomCommentsButton extends StatelessWidget {
@@ -23,14 +25,10 @@ class CustomCommentsButton extends StatelessWidget {
                 top: Radius.circular(CoustomBorderTheme.normalBorderRaduis))),
         context: context,
         builder: (context) {
-          return CommentSection(
-            id: id,
-          );
+          return CommentSection(id: id);
         },
       ),
-      icon: const Icon(
-        Icons.insert_comment_outlined,
-      ),
+      icon: const Icon(Icons.insert_comment_outlined),
       style: ButtonStyle(
         shape: WidgetStateProperty.all(
           RoundedRectangleBorder(
@@ -57,11 +55,13 @@ class CommentSection extends ConsumerStatefulWidget {
     required this.id,
   });
   final String id;
+
   @override
   ConsumerState<CommentSection> createState() => _CommentSectionState();
 }
 
 class _CommentSectionState extends ConsumerState<CommentSection> {
+  get currentLanguage => ref.read(currentLanguageProvider);
   get currentUser => ref.read(currentUserProvider);
   List<Comment> comments = [];
   CommentsService commentsService = CommentsService();
@@ -90,67 +90,50 @@ class _CommentSectionState extends ConsumerState<CommentSection> {
 
   final TextEditingController _controller = TextEditingController();
   final FocusNode _focusNode = FocusNode();
-  bool _replyingToReply = false;
   bool _isReplying = false;
-  int _replyingToIndex = -1;
+  String replyingToId = '';
 
   void _onFocusChange() {
     if (!_focusNode.hasFocus) {
       setState(() {
         _isReplying = false;
-        _replyingToIndex = -1;
+        replyingToId = '';
       });
     }
   }
 
-  void _addCommentOrReply() {
-    if (_isReplying && _replyingToIndex >= 0) {
-      _addReply(_replyingToIndex, _controller.text);
+  Future<void> _addCommentOrReply() async {
+    if (_isReplying && replyingToId.isNotEmpty) {
+      await _addReply(replyingToId, _controller.text);
     } else {
-      _addComment(_controller.text);
+      await _addComment(_controller.text);
     }
     _controller.clear();
     _isReplying = false;
-    _replyingToIndex = -1;
+    replyingToId = '';
+    await fetchData(); // Fetch data again to refresh the comments list
   }
 
-  void _addComment(String comment) {
-    setState(() {
-      comments.add(
-        Comment(
-          id: '4',
-          deleted: false,
-          creationDate: DateFormat('d.M.yyyy').format(DateTime.now()),
-          content: comment,
-          user: User(
-              id: currentUser.id,
-              fullName: currentUser.fullName,
-              phoneNumber: ''),
-          replies: [],
-        ),
-      );
-      _controller.clear();
-    });
+  Future<void> _addComment(String comment) async {
+    await commentsService.commentsPost(
+      token: currentUser.token,
+      id: widget.id,
+      content: comment,
+      parentCommentId: null,
+    );
   }
 
-  void _addReply(int index, String reply) {
-    setState(() {
-      comments[index].replies.add(
-            Reply(
-              commentId: comments[index].id,
-              content: reply,
-              user: User(
-                  id: currentUser.id,
-                  fullName: currentUser.fullName,
-                  phoneNumber: currentUser.phoneNumber),
-              creationDate: DateTime.now().toIso8601String(),
-            ),
-          );
-    });
+  Future<void> _addReply(String parentCommentId, String reply) async {
+    await commentsService.commentsPost(
+      token: currentUser.token,
+      id: widget.id,
+      content: reply,
+      parentCommentId: parentCommentId,
+    );
   }
 
-  String replyingTo = '';
   bool _showAllReplies = false;
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -176,10 +159,13 @@ class _CommentSectionState extends ConsumerState<CommentSection> {
             Container(
               padding: const EdgeInsets.all(CustomPageTheme.smallPadding),
               decoration: const BoxDecoration(
-                  border: Border(
-                      top: BorderSide(
-                          color: CustomColorsTheme.handColor,
-                          width: CoustomBorderTheme.borderWidth * 2))),
+                border: Border(
+                  top: BorderSide(
+                    color: CustomColorsTheme.handColor,
+                    width: CoustomBorderTheme.borderWidth * 2,
+                  ),
+                ),
+              ),
               child: Row(
                 children: <Widget>[
                   Expanded(
@@ -192,7 +178,7 @@ class _CommentSectionState extends ConsumerState<CommentSection> {
                           horizontal: 20,
                         ),
                         hintText: _isReplying
-                            ? "${AppLocalizations.of(context)!.reply} $replyingTo"
+                            ? "${AppLocalizations.of(context)!.reply} $replyingToId"
                             : AppLocalizations.of(context)!.addComment,
                         border: InputBorder.none,
                       ),
@@ -207,12 +193,8 @@ class _CommentSectionState extends ConsumerState<CommentSection> {
                     ),
                     onPressed: _controller.text.isNotEmpty
                         ? () {
-                            if (_controller.text.isNotEmpty) {
-                              _addCommentOrReply();
-                              _focusNode
-                                  .unfocus(); // Add this line to remove focus
-                              setState(() {});
-                            }
+                            _focusNode.unfocus();
+                            _addCommentOrReply();
                           }
                         : null,
                   ),
@@ -230,6 +212,9 @@ class _CommentSectionState extends ConsumerState<CommentSection> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         ListTile(
+          onLongPress: () async {
+            await _deleteComment(comment);
+          },
           leading: const CircleAvatar(),
           title: Text(comment.user.fullName,
               style: const TextStyle(fontSize: CustomFontsTheme.mediumSize)),
@@ -241,7 +226,9 @@ class _CommentSectionState extends ConsumerState<CommentSection> {
               Row(
                 children: [
                   Text(
-                    comment.creationDate.toString(),
+                    DateFormat('d.M.yyyy')
+                        .format(comment.creationDate)
+                        .toString(),
                     style: const TextStyle(color: Colors.grey),
                   ),
                   const SizedBox(width: 8),
@@ -261,8 +248,7 @@ class _CommentSectionState extends ConsumerState<CommentSection> {
                     onPressed: () {
                       setState(() {
                         _isReplying = true;
-                        _replyingToIndex = index;
-                        replyingTo = comment.user.fullName;
+                        replyingToId = comment.id;
                       });
                       _focusNode.requestFocus();
                     },
@@ -274,28 +260,110 @@ class _CommentSectionState extends ConsumerState<CommentSection> {
           ),
         ),
         const SizedBox(height: 8),
-        if (_showAllReplies) ..._buildReplyItems(comment, index),
+        if (_showAllReplies) ..._buildReplyItems(comment),
       ],
     );
   }
-  List<Widget> _buildReplyItems(Comment comment, int index) {
+
+  List<Widget> _buildReplyItems(Comment comment) {
     return comment.replies.map((reply) {
+      String arrowDirection = currentLanguage.languageCode == 'en' ? '>' : '<';
+      String ifArabic =
+          "${comment.user.fullName} $arrowDirection ${reply.user.fullName}";
+      String ifEnglish =
+          "${reply.user.fullName} $arrowDirection ${comment.user.fullName} ";
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
         child: ListTile(
+          onLongPress: () async {
+            await _deleteReply(reply);
+          },
           onTap: () {
             setState(() {
-                        _isReplying = true;
-                        _replyingToIndex = index;
-                        replyingTo = comment.user.fullName;
-                      });
-                      _focusNode.requestFocus();
+              _isReplying = true;
+              replyingToId = comment.id;
+            });
+            _focusNode.requestFocus();
           },
           leading: const CircleAvatar(),
-          title: Text("${reply.user.fullName} < ${comment.user.fullName}"),
+          title:
+              Text(currentLanguage.languageCode == 'en' ? ifEnglish : ifArabic),
           subtitle: Text(reply.content),
         ),
       );
     }).toList();
   }
+  Future<void> _deleteComment(Comment comment) async {
+  if (currentUser.id == comment.user.id) {
+    showCupertinoModalPopup(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          content: Container(
+            height: 60,
+            alignment: Alignment.center,
+            child: TextButton(
+              style: TextButton.styleFrom(
+                minimumSize: const Size(double.infinity, 40),
+              ),
+              onPressed: () async {
+                try {
+                  await commentsService.commentsDelete(
+                    token: currentUser.token,
+                    id: widget.id,
+                    commentId: comment.id,
+                  );
+                  Navigator.pop(context); // Close the dialog
+                  await fetchData();
+                } catch (e) {
+                  print('Error in deleting comment: $e');
+                }
+              },
+              child: Text(AppLocalizations.of(context)!.delete),
+            ),
+          ),
+        );
+      },
+    );
+  } else {
+    // Show edit button or any other action for non-owners
+  }
+}
+
+Future<void> _deleteReply(Reply reply) async {
+  if (currentUser.userId == reply.user.id) {
+    showCupertinoModalPopup(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          content: Container(
+            height: 60,
+            alignment: Alignment.center,
+            child: TextButton(
+              style: TextButton.styleFrom(
+                minimumSize: const Size(double.infinity, 40),
+              ),
+              onPressed: () async {
+                try {
+                  await commentsService.commentsDelete(
+                    token: currentUser.token,
+                    id: widget.id,
+                    commentId: reply.commentId,
+                  );
+                  Navigator.pop(context); // Close the dialog
+                  await fetchData();
+                } catch (e) {
+                  print('Error in deleting reply: $e');
+                }
+              },
+              child: Text(AppLocalizations.of(context)!.delete),
+            ),
+          ),
+        );
+      },
+    );
+  } else {
+    // Show edit button or any other action for non-owners
+  }
+}
 }

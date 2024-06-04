@@ -40,82 +40,82 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     selectedLanguage = ref.watch(currentLanguageProvider);
     notifications = ref.watch(notifsStatusProvider);
     final currentUser = ref.read(currentUserProvider);
-
     return Scaffold(
       body: SafeArea(
-        child: Column(
-          children: [
-            ProfileHead(),
-            const SizedBox(
-              height: CustomPageTheme.normalPadding,
-            ),
-            ViewedItemsTitle(mainText: AppLocalizations.of(context)!.settings),
-            const SizedBox(
-              height: CustomPageTheme.normalPadding,
-            ),
-            FormContainer(
-              children: [
-                ListTile(
-                  leading: const Icon(Icons.notifications_outlined),
-                  title: Text(
-                    AppLocalizations.of(context)!.notifications,
-                  ),
-                  trailing: Switch(
-                    value: notifications!,
-                    onChanged: (value) {
-                      setState(() {
-                        notifications = value;
-                      });
-                      newNotifsStatus();
-                    },
-                  ),
-                ),
-                const PaddedDivider(),
-                ListTile(
-                  leading: const Icon(Icons.language),
-                  title: Text(
-                    AppLocalizations.of(context)!.language,
-                  ),
-                  trailing: DropdownButton<Locale>(
-                    value: selectedLanguage,
-                    style: TextStyle(
-                      color: CustomColorsTheme.descriptionColor,
-                      fontFamily: GoogleFonts.cairo().fontFamily,
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              ProfileHead(),
+              const SizedBox(
+                height: CustomPageTheme.normalPadding,
+              ),
+              ViewedItemsTitle(mainText: AppLocalizations.of(context)!.settings),
+              const SizedBox(
+                height: CustomPageTheme.normalPadding,
+              ),
+              FormContainer(
+                children: [
+                  ListTile(
+                    leading: const Icon(Icons.notifications_outlined),
+                    title: Text(
+                      AppLocalizations.of(context)!.notifications,
                     ),
-                    underline: Container(),
-                    onChanged: (Locale? newValue) {
-                      setState(() {
-                        selectedLanguage = newValue!;
-                      });
-                      newLang();
-                    },
-                    items: [
-                      DropdownMenuItem(
-                        value: const Locale('ar'),
-                        child: Text(AppLocalizations.of(context)!.arabic),
-                      ),
-                      DropdownMenuItem(
-                        value: const Locale('en'),
-                        child: Text(AppLocalizations.of(context)!.english),
-                      ),
-                    ],
+                    trailing: Switch(
+                      value: notifications!,
+                      onChanged: (value) {
+                        setState(() {
+                          notifications = value;
+                        });
+                        newNotifsStatus();
+                      },
+                    ),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(
-              height: CustomPageTheme.bigPadding,
-            ),
-            ViewedItemsTitle(mainText: AppLocalizations.of(context)!.account),
-            const SizedBox(
-              height: CustomPageTheme.normalPadding,
-            ),
-            FormContainer(
-              children: [
-                SizedBox(
-                  height: 200,
-                  child: ListView.separated(
-                    itemCount: 3,
+                  const PaddedDivider(),
+                  ListTile(
+                    leading: const Icon(Icons.language),
+                    title: Text(
+                      AppLocalizations.of(context)!.language,
+                    ),
+                    trailing: DropdownButton<Locale>(
+                      value: selectedLanguage,
+                      style: TextStyle(
+                        color: CustomColorsTheme.descriptionColor,
+                        fontFamily: GoogleFonts.cairo().fontFamily,
+                      ),
+                      underline: Container(),
+                      onChanged: (Locale? newValue) {
+                        setState(() {
+                          selectedLanguage = newValue!;
+                        });
+                        newLang();
+                      },
+                      items: [
+                        DropdownMenuItem(
+                          value: const Locale('ar'),
+                          child: Text(AppLocalizations.of(context)!.arabic),
+                        ),
+                        DropdownMenuItem(
+                          value: const Locale('en'),
+                          child: Text(AppLocalizations.of(context)!.english),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(
+                height: CustomPageTheme.bigPadding,
+              ),
+              ViewedItemsTitle(mainText: AppLocalizations.of(context)!.account),
+              const SizedBox(
+                height: CustomPageTheme.normalPadding,
+              ),
+              FormContainer(
+                children: [
+                  ListView.separated(
+                    itemCount: 4,
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
                     separatorBuilder: (context, index) => const PaddedDivider(),
                     itemBuilder: (context, index) => ListTile(
                         onTap: AccountSettingDate(context).listFunctions[index],
@@ -123,43 +123,42 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                         title: AccountSettingDate(context).listTitle[index],
                         trailing: AccountSettingDate(context).trailing),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(
-              height: CustomPageTheme.bigPadding,
-            ),
-            if (currentUser == null)
-              SettingsButtons(
-                  buttonsStyles: ButtonsData(context).buttonsStyles,
-                  buttonsFunctions: ButtonsData(context).buttonsFunctions,
-                  buttonsPrefixIcons: ButtonsData(context).buttonsPrefixIcons,
-                  buttonsText: ButtonsData(context).buttonsText),
-            const Spacer(),
-            if (currentUser != null)
-              SettingsButtons(suffixIcon: const Icon(null), buttonsStyles: [
-                ButtonStyle(
-                    foregroundColor:
-                        WidgetStateProperty.all<Color>(Colors.white),
-                    backgroundColor: WidgetStateProperty.all<Color>(
-                        CustomColorsTheme.unAvailableRadioColor),
-                    shape: WidgetStateProperty.all<RoundedRectangleBorder>(
-                      RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(
-                            CoustomBorderTheme.normalBorderRaduis),
+                ],
+              ),
+              const SizedBox(
+                height: CustomPageTheme.bigPadding,
+              ),
+              if (currentUser == null)
+                SettingsButtons(
+                    buttonsStyles: ButtonsData(context).buttonsStyles,
+                    buttonsFunctions: ButtonsData(context).buttonsFunctions,
+                    buttonsPrefixIcons: ButtonsData(context).buttonsPrefixIcons,
+                    buttonsText: ButtonsData(context).buttonsText),
+              if (currentUser != null)
+                SettingsButtons(suffixIcon: const Icon(null), buttonsStyles: [
+                  ButtonStyle(
+                      foregroundColor:
+                          WidgetStateProperty.all<Color>(Colors.white),
+                      backgroundColor: WidgetStateProperty.all<Color>(
+                          CustomColorsTheme.unAvailableRadioColor),
+                      shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(
+                              CoustomBorderTheme.normalBorderRaduis),
+                        ),
                       ),
-                    ),
-                    side: WidgetStateProperty.all(const BorderSide(
-                        width: 1.5,
-                        color: CustomColorsTheme.unAvailableRadioColor))),
-              ], buttonsFunctions: [
-                logout
-              ], buttonsPrefixIcons: const [
-                Icon(Icons.logout)
-              ], buttonsText: [
-                AppLocalizations.of(context)!.logout
-              ]),
-          ],
+                      side: WidgetStateProperty.all(const BorderSide(
+                          width: 1.5,
+                          color: CustomColorsTheme.unAvailableRadioColor))),
+                ], buttonsFunctions: [
+                  logout
+                ], buttonsPrefixIcons: const [
+                  Icon(Icons.logout)
+                ], buttonsText: [
+                  AppLocalizations.of(context)!.logout
+                ]),
+            ],
+          ),
         ),
       ),
     );

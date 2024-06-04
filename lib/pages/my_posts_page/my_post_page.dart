@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localization.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:masahaty/models/warehouse_model.dart';
+import 'package:masahaty/models/order_model.dart';
+import 'package:masahaty/models/storage&features_model.dart';
 import 'package:masahaty/services/dio_storage.dart';
 import '../../components/custom_back_botton.dart';
 import '../../components/warehouse_card.dart';
@@ -17,15 +18,15 @@ class MyPostPage extends ConsumerStatefulWidget {
 
 class _MyPostPageState extends ConsumerState<MyPostPage> {
   get currentUserId => ref.read(currentUserProvider)?.id;
-   List<Warehouse> currentPosts = [];
+   List<Storage> currentPosts = [];
   StorageService storageService = StorageService();
 
 
 
    void getOrders() async {
     final storages = await storageService.storageGet();
-    for (Warehouse storage in storages) {
-      if (storage.owner['id'] == currentUserId) {
+    for (Storage storage in storages) {
+      if (storage.owner.id == currentUserId) {
         currentPosts.add(storage);
       }
     }
@@ -66,8 +67,8 @@ class _MyPostPageState extends ConsumerState<MyPostPage> {
             return WarehouseCard(
                 rating: currentPosts[index].rating,
                 id: currentPosts[index].id,
-                governorate: currentPosts[index].city['govName'],
-                district: currentPosts[index].city['name'],
+                governorate: currentPosts[index].city!.govName,
+                district: currentPosts[index].city!.name,
                 title: currentPosts[index].name,
                 discription: currentPosts[index].description,
                 imagePath: currentPosts[index].images[0],

@@ -5,7 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:masahaty/core/constants/constants.dart';
-import 'package:masahaty/models/warehouse_model.dart';
+import 'package:masahaty/models/order_model.dart';
+import 'package:masahaty/models/storage&features_model.dart';
 import 'package:masahaty/pages/wharehouse_pages/components/info_table.dart';
 import 'package:masahaty/pages/wharehouse_pages/wharehouse_reserve_form.dart';
 import 'package:masahaty/provider/change_language.dart';
@@ -28,8 +29,8 @@ class WarehouseDetailesPage extends ConsumerStatefulWidget {
 
 class _WarehouseDetailesState extends ConsumerState<WarehouseDetailesPage> {
   get currentUserToken => ref.read(currentUserProvider)?.token;
-  Warehouse? currentWarehouse;
-  List<Map<String, dynamic>> features = [];
+  Storage? currentWarehouse;
+  List<StorageFeature> features = [];
   StorageService storageService = StorageService();
   @override
   void initState() {
@@ -39,7 +40,7 @@ class _WarehouseDetailesState extends ConsumerState<WarehouseDetailesPage> {
 
   Future<void> getDetails() async {
     try {
-      Warehouse temp = await storageService.storageGetById(id: widget.id);
+      Storage temp = await storageService.storageGetById(id: widget.id);
       print(widget.id);
       setState(() {
         currentWarehouse = temp;
@@ -96,7 +97,7 @@ class _WarehouseDetailesState extends ConsumerState<WarehouseDetailesPage> {
             icon: const Icon(
               Icons.account_box_outlined,
             ));
-      } else if (currentUser.id == currentWarehouse?.owner['id']) {
+      } else if (currentUser.id == currentWarehouse?.owner.id) {
         return OutlinedButton.icon(
           style: ButtonStyle(
               minimumSize:
@@ -179,7 +180,7 @@ class _WarehouseDetailesState extends ConsumerState<WarehouseDetailesPage> {
                     height: CustomPageTheme.normalPadding,
                   ),
                   WarehouseTitleAndPrice(
-                      currentWarehouse: currentWarehouse,
+                      currentWarehouse: currentWarehouse!,
                       formattedPrice: formattedPrice),
                   Row(
                     children: [
@@ -187,7 +188,7 @@ class _WarehouseDetailesState extends ConsumerState<WarehouseDetailesPage> {
                           color: CustomColorsTheme.headLineColor,
                           size: CoustomIconTheme.smallize),
                       Text(
-                        '${currentWarehouse!.city['govName']}, ${currentWarehouse!.address}',
+                        '${currentWarehouse!.city!.govName}, ${currentWarehouse!.address}',
                         style: const TextStyle(
                             color: CustomColorsTheme.descriptionColor),
                       ),
@@ -234,7 +235,7 @@ class _WarehouseDetailesState extends ConsumerState<WarehouseDetailesPage> {
                   ),
                   InfoTable(
                       currentLanguage: currentLanguage,
-                      currentWarehouse: currentWarehouse,
+                      currentWarehouse: currentWarehouse!,
                       features: features),
                   const SizedBox(
                     height: CustomPageTheme.bigPadding,
