@@ -29,9 +29,11 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
   Widget build(BuildContext context) {
     bool isLoading = false;
     bool isValid = true;
-    String? validatePhoneNumber(String? query) {
+     String? validatePhoneNumber(String? query) {
       if (query == null || query.isEmpty) {
         return AppLocalizations.of(context)!.phoneNumberErrorEmpty;
+      }else if (query.length <= 9) {
+        return AppLocalizations.of(context)!.phoneNumberErrorLength;
       } else {
         return null;
       }

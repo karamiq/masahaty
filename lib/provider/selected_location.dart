@@ -1,13 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:masahaty/provider/location_helper.dart';
 
 import '../models/location_model.dart';
+
 class SelectedLocationNotifier extends StateNotifier<LocationService?> {
   SelectedLocationNotifier() : super(null);
-
   Future<void> selectLocation(LocationService? pos) async {
-
     try {
       double? latitude = pos?.latitude;
       double? longitude = pos?.longitude;
@@ -20,6 +18,10 @@ class SelectedLocationNotifier extends StateNotifier<LocationService?> {
     } catch (e) {
       state = null;
     }
+  }
+
+  Future<LocationService?> loadLocation() async {
+    return state;
   }
 }
 

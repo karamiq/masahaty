@@ -154,7 +154,8 @@
   "pickLocation":"Pick the location",
   "m":"m",
   "doYouHaveAnAccount":"Do you have an account?",
-  "youAreNewUser": "You are new user?"
+  "youAreNewUser": "You are new user?",
+  "choseValidLocation":"Chose valid location"
 
 
   

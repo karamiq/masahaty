@@ -7,7 +7,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 class ChangeLanguageNotifier extends StateNotifier<Locale?> {
   ChangeLanguageNotifier() : super(null);
 
-  
   Future<void> changeLanguage(Locale newLang) async {
     state = newLang;
     try {

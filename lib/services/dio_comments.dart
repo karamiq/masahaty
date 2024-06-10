@@ -17,17 +17,13 @@ class CommentsService {
         final List<dynamic> data = response.data[ApiKey.data];
         return data.map((json) => Comment.fromJson(json)).toList();
       } else {
-        // Handle non-200 status codes
         return [];
       }
     } catch (e) {
-      // Handle network errors
       print('Error fetching comments: $e');
       return [];
     }
   }
-
-  // Post a comment
   Future<void> commentsPost({
     required String token,
     required String id,
@@ -44,8 +40,6 @@ class CommentsService {
       print('Error posting comment: $e');
     }
   }
-
-  // Delete a comment
   Future<void> commentsDelete({
     required String token,
     required String id,

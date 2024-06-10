@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:masahaty/pages/order_detailes_page/order_detailes_page.dart';
 import 'package:masahaty/pages/orders_management_page/orders_management_page.dart';
 import 'package:masahaty/pages/add_warehouse/add_warehouse.dart';
@@ -155,9 +154,7 @@ class AppRouter {
         path: Routes.pickLocation,
         name: Routes.pickLocation,
         builder: (BuildContext context, GoRouterState state) =>
-            const PickYourLocation(
-          defaultLocation: LatLng(33.312805, 44.361488),
-        ),
+            const PickYourLocation(),
       ),
     ],
   );

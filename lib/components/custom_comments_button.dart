@@ -77,7 +77,7 @@ class _CommentSectionState extends ConsumerState<CommentSection> {
   @override
   void initState() {
     super.initState();
-    if(currentUser?.token != null) {
+    if (currentUser?.token != null) {
       fetchData();
     }
     _focusNode.addListener(_onFocusChange);
@@ -94,7 +94,7 @@ class _CommentSectionState extends ConsumerState<CommentSection> {
   final FocusNode _focusNode = FocusNode();
   bool _isReplying = false;
   String replyingToId = '';
-
+  String replyingToName = '';
   void _onFocusChange() {
     if (!_focusNode.hasFocus) {
       setState(() {
@@ -138,75 +138,78 @@ class _CommentSectionState extends ConsumerState<CommentSection> {
 
   @override
   Widget build(BuildContext context) {
-    return currentUser?.token != null ? Padding(
-      padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom,
-      ),
-      child: SizedBox(
-        height: 600,
-        child: Column(
-          children: <Widget>[
-            Expanded(
-              child: comments.isNotEmpty
-                  ? ListView.builder(
-                      itemCount: comments.length,
-                      itemBuilder: (context, index) {
-                        return _buildCommentItem(comments[index], index);
-                      },
-                    )
-                  : Center(
-                      child: Text(AppLocalizations.of(context)!.noComments),
-                    ),
+    return currentUser?.token != null
+        ? Padding(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom,
             ),
-            Container(
-              padding: const EdgeInsets.all(CustomPageTheme.smallPadding),
-              decoration: const BoxDecoration(
-                border: Border(
-                  top: BorderSide(
-                    color: CustomColorsTheme.handColor,
-                    width: CoustomBorderTheme.borderWidth * 2,
-                  ),
-                ),
-              ),
-              child: Row(
+            child: SizedBox(
+              height: 600,
+              child: Column(
                 children: <Widget>[
                   Expanded(
-                    child: TextField(
-                      controller: _controller,
-                      focusNode: _focusNode,
-                      decoration: InputDecoration(
-                        contentPadding: const EdgeInsets.symmetric(
-                          vertical: 10,
-                          horizontal: 20,
+                    child: comments.isNotEmpty
+                        ? ListView.builder(
+                            itemCount: comments.length,
+                            itemBuilder: (context, index) {
+                              return _buildCommentItem(comments[index], index);
+                            },
+                          )
+                        : Center(
+                            child:
+                                Text(AppLocalizations.of(context)!.noComments),
+                          ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.all(CustomPageTheme.smallPadding),
+                    decoration: const BoxDecoration(
+                      border: Border(
+                        top: BorderSide(
+                          color: CustomColorsTheme.handColor,
+                          width: CoustomBorderTheme.borderWidth * 2,
                         ),
-                        hintText: _isReplying
-                            ? "${AppLocalizations.of(context)!.reply} $replyingToId"
-                            : AppLocalizations.of(context)!.addComment,
-                        border: InputBorder.none,
                       ),
                     ),
-                  ),
-                  IconButton(
-                    icon: Icon(
-                      Icons.send,
-                      color: _controller.text.isNotEmpty
-                          ? CustomColorsTheme.headLineColor
-                          : CustomColorsTheme.buttonColor,
+                    child: Row(
+                      children: <Widget>[
+                        Expanded(
+                          child: TextField(
+                            controller: _controller,
+                            focusNode: _focusNode,
+                            decoration: InputDecoration(
+                              contentPadding: const EdgeInsets.symmetric(
+                                vertical: 10,
+                                horizontal: 20,
+                              ),
+                              hintText: _isReplying
+                                  ? "${AppLocalizations.of(context)!.reply} $replyingToName"
+                                  : AppLocalizations.of(context)!.addComment,
+                              border: InputBorder.none,
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                          icon: Icon(
+                            Icons.send,
+                            color: _controller.text.isNotEmpty
+                                ? CustomColorsTheme.headLineColor
+                                : CustomColorsTheme.buttonColor,
+                          ),
+                          onPressed: _controller.text.isNotEmpty
+                              ? () {
+                                  _focusNode.unfocus();
+                                  _addCommentOrReply();
+                                }
+                              : null,
+                        ),
+                      ],
                     ),
-                    onPressed: _controller.text.isNotEmpty
-                        ? () {
-                            _focusNode.unfocus();
-                            _addCommentOrReply();
-                          }
-                        : null,
                   ),
                 ],
               ),
             ),
-          ],
-        ),
-      ),
-    ) : SignInFirst(context);
+          )
+        : SignInFirst(context);
   }
 
   Widget _buildCommentItem(Comment comment, int index) {
@@ -251,6 +254,7 @@ class _CommentSectionState extends ConsumerState<CommentSection> {
                       setState(() {
                         _isReplying = true;
                         replyingToId = comment.id;
+                        replyingToName = comment.user.fullName;
                       });
                       _focusNode.requestFocus();
                     },
@@ -295,77 +299,78 @@ class _CommentSectionState extends ConsumerState<CommentSection> {
       );
     }).toList();
   }
-  Future<void> _deleteComment(Comment comment) async {
-  if (currentUser.id == comment.user.id) {
-    showCupertinoModalPopup(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          content: Container(
-            height: 60,
-            alignment: Alignment.center,
-            child: TextButton(
-              style: TextButton.styleFrom(
-                minimumSize: const Size(double.infinity, 40),
-              ),
-              onPressed: () async {
-                try {
-                  await commentsService.commentsDelete(
-                    token: currentUser.token,
-                    id: widget.id,
-                    commentId: comment.id,
-                  );
-                  Navigator.pop(context); // Close the dialog
-                  await fetchData();
-                } catch (e) {
-                  print('Error in deleting comment: $e');
-                }
-              },
-              child: Text(AppLocalizations.of(context)!.delete),
-            ),
-          ),
-        );
-      },
-    );
-  } else {
-    // Show edit button or any other action for non-owners
-  }
-}
 
-Future<void> _deleteReply(Reply reply) async {
-  if (currentUser.userId == reply.user.id) {
-    showCupertinoModalPopup(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          content: Container(
-            height: 60,
-            alignment: Alignment.center,
-            child: TextButton(
-              style: TextButton.styleFrom(
-                minimumSize: const Size(double.infinity, 40),
+  Future<void> _deleteComment(Comment comment) async {
+    if (currentUser.id == comment.user.id) {
+      showCupertinoModalPopup(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            content: Container(
+              height: 60,
+              alignment: Alignment.center,
+              child: TextButton(
+                style: TextButton.styleFrom(
+                  minimumSize: const Size(double.infinity, 40),
+                ),
+                onPressed: () async {
+                  try {
+                    await commentsService.commentsDelete(
+                      token: currentUser.token,
+                      id: widget.id,
+                      commentId: comment.id,
+                    );
+                    Navigator.pop(context); // Close the dialog
+                    await fetchData();
+                  } catch (e) {
+                    print('Error in deleting comment: $e');
+                  }
+                },
+                child: Text(AppLocalizations.of(context)!.delete),
               ),
-              onPressed: () async {
-                try {
-                  await commentsService.commentsDelete(
-                    token: currentUser.token,
-                    id: widget.id,
-                    commentId: reply.commentId,
-                  );
-                  Navigator.pop(context); // Close the dialog
-                  await fetchData();
-                } catch (e) {
-                  print('Error in deleting reply: $e');
-                }
-              },
-              child: Text(AppLocalizations.of(context)!.delete),
             ),
-          ),
-        );
-      },
-    );
-  } else {
-    // Show edit button or any other action for non-owners
+          );
+        },
+      );
+    } else {
+      // Show edit button or any other action for non-owners
+    }
   }
-}
+
+  Future<void> _deleteReply(Reply reply) async {
+    if (currentUser.id == reply.user.id) {
+      showCupertinoModalPopup(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            content: Container(
+              height: 60,
+              alignment: Alignment.center,
+              child: TextButton(
+                style: TextButton.styleFrom(
+                  minimumSize: const Size(double.infinity, 40),
+                ),
+                onPressed: () async {
+                  try {
+                    await commentsService.commentsDelete(
+                      token: currentUser.token,
+                      id: widget.id,
+                      commentId: reply.commentId,
+                    );
+                    Navigator.pop(context); // Close the dialog
+                    await fetchData();
+                  } catch (e) {
+                    print('Error in deleting reply: $e');
+                  }
+                },
+                child: Text(AppLocalizations.of(context)!.delete),
+              ),
+            ),
+          );
+        },
+      );
+    } else {
+      // Show edit button or any other action for non-owners
+    }
+  }
 }

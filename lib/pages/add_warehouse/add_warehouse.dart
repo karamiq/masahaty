@@ -12,15 +12,16 @@ import 'package:masahaty/provider/location.dart';
 import 'package:masahaty/provider/selected_location.dart';
 import 'package:masahaty/routes/routes.dart';
 import 'package:masahaty/services/dio_storage.dart';
+import '../../components/custom_elevated_button.dart';
 import '../../components/info_text_form_field.dart';
 import '../../components/show_selection_bottomsheet.dart';
 import '../../components/subtitle.dart';
 import '../../core/constants/constants.dart';
 import 'package:flutter_gen/gen_l10n/app_localization.dart';
 import '../../provider/location_helper.dart';
-import '../profile_page/components/settings_buttons.dart';
 import 'components/add_images.dart';
 import 'components/custom_radio_features.dart';
+import 'components/map_info.dart';
 import 'components/selected_gov.dart';
 
 class AddWarehousePost extends ConsumerStatefulWidget {
@@ -172,7 +173,6 @@ class _AddWarehousePostState extends ConsumerState<AddWarehousePost> {
   void postWarehouse() async {
     setState(() => isLoading = true);
     govId = await getGovId(context, selectedGovermnt);
-
     dynamic temp;
     temp = await getCityId(context, selectedCity, selectedGovermnt);
     address = temp?['name'];
@@ -209,62 +209,36 @@ class _AddWarehousePostState extends ConsumerState<AddWarehousePost> {
     }
   }
 
-  void go() => context.pushNamed(Routes.profilePage);
-
   @override
   Widget build(BuildContext context) {
-    final currentLocation = ref.watch(locationProvider);
-    final selectedLocation = ref.watch(selectLocationProvider);
-
-    Widget previewContent;
     void pickLocation() async {
-      setState(() {});
-      context.pushNamed(Routes.pickLocation);
+      ref.watch(selectLocationProvider);
+      dynamic returnedLocation =
+          await context.pushNamed<LocationService>(Routes.pickLocation);
       setState(() {
-        ref
-            .read(selectLocationProvider.notifier)
-            .selectLocation(currentLocation);
-        storageLocation = selectedLocation;
-        
-         warehouseLatitude = storageLocation?.latitude;
+        storageLocation = returnedLocation;
+        warehouseLatitude = storageLocation?.latitude;
         warehouseLongitude = storageLocation?.longitude;
       });
+       print(await storageLocation);
     }
 
     void getLocation() async {
+    final currentLocation = ref.watch(locationProvider);
       setState(() {
         loadCurrentLocation = true;
       });
       ref.read(locationProvider.notifier).getCurrentLocation().then((_) async {
         warehouseLatitude = currentLocation?.latitude;
         warehouseLongitude = currentLocation?.longitude;
-        storageLocation =
-            currentLocation; // Set storageLocation to currentLocation
+        storageLocation = currentLocation;
         storageLocation?.placemarks = await convertToAddress(
             warehouseLatitude ?? 0, warehouseLongitude ?? 0);
         setState(() {
           loadCurrentLocation = false;
         });
+           print(await storageLocation);
       });
-    }
-
-    if (loadCurrentLocation) {
-      previewContent = const Center(
-        child: CircularProgressIndicator(),
-      );
-    } else if (storageLocation == null) {
-      previewContent = Text(
-        AppLocalizations.of(context)!.noAddressSelected,
-      );
-    } else {
-      previewContent = Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-              '${storageLocation?.placemarks?.locality} - ${storageLocation?.placemarks?.subLocality} - ${storageLocation?.placemarks?.name}'),
-          Text('${storageLocation?.latitude}, ${storageLocation?.longitude}'),
-        ],
-      );
     }
 
     return Scaffold(
@@ -348,7 +322,9 @@ class _AddWarehousePostState extends ConsumerState<AddWarehousePost> {
                 formKey: noumberOfRoomsFormKey,
                 validator: checkValidation,
               ),
-              SubTitle(ttt: "${AppLocalizations.of(context)!.space} ${AppLocalizations.of(context)!.m}"),
+              SubTitle(
+                  ttt:
+                      "${AppLocalizations.of(context)!.space} ${AppLocalizations.of(context)!.m}"),
               InfoTextField(
                 keyboardType: TextInputType.number,
                 controller: warehousSpaceController,
@@ -383,104 +359,29 @@ class _AddWarehousePostState extends ConsumerState<AddWarehousePost> {
               const SizedBox(
                 height: CustomPageTheme.normalPadding,
               ),
-              Container(
-                alignment: Alignment.center,
-                height: 200,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(
-                    color: addressSelected != false
-                        ? Colors.grey
-                        : CustomColorsTheme.unAvailableRadioColor,
-                    width: 2,
-                  ),
-                ),
-                child: previewContent,
-              ),
-              Padding(
-                padding: const EdgeInsets.all(CustomPageTheme.smallPadding),
-                child: addressSelected == false
-                    ? Text(
-                        AppLocalizations.of(context)!.phoneNumberErrorEmpty,
-                        style: const TextStyle(
-                            color: CustomColorsTheme.unAvailableRadioColor),
-                      )
-                    : null,
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                    vertical: CustomPageTheme.normalPadding),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: ElevatedButton(
-                        style: TextButton.styleFrom(
-                            minimumSize: const Size(double.infinity, 50),
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(
-                                    CoustomBorderTheme.normalBorderRaduis))),
-                        onPressed: isLoading != true
-                            ? (loadCurrentLocation != true ? getLocation : null)
-                            : null,
-                        child: Text(
-                            AppLocalizations.of(context)!.yourCurrentLocation),
-                      ),
-                    ),
-                    const SizedBox(
-                      width: CustomPageTheme.normalPadding,
-                    ),
-                    Expanded(
-                      child: ElevatedButton(
-                          style: TextButton.styleFrom(
-                              minimumSize: const Size(double.infinity, 50),
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(
-                                      CoustomBorderTheme.normalBorderRaduis))),
-                          onPressed: isLoading != true ? pickLocation : null,
-                          child: Text(AppLocalizations.of(context)!.map)),
-                    ),
-                  ],
-                ),
+              MapInfo(
+                addressSelected: addressSelected,
+                loadCurrentLocation: loadCurrentLocation,
+                storageLocation: storageLocation,
+                isLoading: isLoading,
+                getLocation: getLocation,
+                pickLocation: pickLocation,
               ),
               if (currentUserId != null)
-                ElevatedButton(
-                  style: TextButton.styleFrom(
-                      minimumSize: const Size(double.infinity, 50),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(
-                              CoustomBorderTheme.normalBorderRaduis))),
+                CustomElevatedButton(
                   onPressed: postWarehouse,
-                  child: isLoading == false
+                  label: isLoading == false
                       ? Text(AppLocalizations.of(context)!.postWarehouse)
                       : const CircularProgressIndicator(
                           color: Colors.white,
                         ),
                 ),
               if (currentUserId == null)
-                SettingsButtons(
-                  suffixIcon: const Icon(null),
-                  buttonsStyles: [
-                    ButtonStyle(
-                        foregroundColor:
-                            MaterialStateProperty.all<Color>(Colors.white),
-                        backgroundColor: MaterialStateProperty.all<Color>(
-                            CustomColorsTheme.unAvailableRadioColor),
-                        shape:
-                            MaterialStateProperty.all<RoundedRectangleBorder>(
-                          RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(
-                                CoustomBorderTheme.normalBorderRaduis),
-                          ),
-                        ),
-                        side: MaterialStateProperty.all(const BorderSide(
-                            width: 1.5,
-                            color: CustomColorsTheme.unAvailableRadioColor))),
-                  ],
-                  buttonsFunctions: [go],
-                  buttonsPrefixIcons: const [Icon(Icons.login)],
-                  buttonsText: [AppLocalizations.of(context)!.signIn],
+                CustomElevatedButton(
+                  label: Text(AppLocalizations.of(context)!.signIn),
+                  backgroundColor: CustomColorsTheme.unAvailableRadioColor,
+                  onPressed: () => context.pushNamed(Routes.logIn),
+                  icon: const Icon(Icons.login),
                 ),
             ],
           ),

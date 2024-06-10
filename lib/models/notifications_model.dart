@@ -1,5 +1,3 @@
-import 'package:masahaty/models/storage&features_model.dart';
-
 class Notif {
   String id;
   bool deleted;

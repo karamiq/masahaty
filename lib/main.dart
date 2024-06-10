@@ -10,37 +10,53 @@ import 'package:masahaty/provider/notification_statues.dart';
 import 'package:masahaty/routes/routes.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:workmanager/workmanager.dart';
 
+import 'services/dio_notifications.dart';
 import 'services/notifications_handlers.dart';
 
 void main() async {
   // Initialize Flutter Awesome Notifications
- // await AwesomeNotifications().initialize(
- //   'resource://drawable/app_icon',
- //   [
- //     NotificationChannel(
- //         channelGroupKey: 'basic_channel_group',
- //         channelKey: 'basic_channel',
- //         channelName: 'Main Channels',
- //         channelDescription: "A notification channel for notifications")
- //   ],
- //   channelGroups: [
- //     NotificationChannelGroup(
- //       channelGroupKey: "basic_channel_group",
- //       channelGroupName: 'another basic group',
- //     )
- //   ],
- // );
-  //bool isAllowedToSendNOtifications =
-  //    await AwesomeNotifications().isNotificationAllowed();
-  //if (isAllowedToSendNOtifications) {
-  //  AwesomeNotifications().requestPermissionToSendNotifications();
-  //}
+  await AwesomeNotifications().initialize(
+    'resource://drawable/app_icon',
+    [
+      NotificationChannel(
+        channelGroupKey: 'basic_channel_group',
+        channelKey: 'basic_channel',
+        channelName: 'Main Channels',
+        channelDescription: "A notification channel for notifications",
+      ),
+    ],
+    channelGroups: [
+      NotificationChannelGroup(
+        channelGroupKey: "basic_channel_group",
+        channelGroupName: 'another basic group',
+      ),
+    ],
+  );
+  bool isAllowedToSendNotifications =
+      await AwesomeNotifications().isNotificationAllowed();
+
+  if (!isAllowedToSendNotifications) {
+    AwesomeNotifications().requestPermissionToSendNotifications();
+  }
+  Workmanager().initialize(callbackDispatcher, isInDebugMode: true);
   WidgetsFlutterBinding.ensureInitialized();
-   await NotificationController.initializeLocalNotifications();
+  await NotificationController.initializeLocalNotifications();
   await NotificationController.initializeIsolateReceivePort();
   await SharedPreferences.getInstance();
+
+  // Run the app
   runApp(const ProviderScope(child: MyApp()));
+}
+
+void callbackDispatcher() {
+  Workmanager().executeTask((task, inputData) async {
+    // Call your NotificationsService here
+    final token = inputData?['token'];
+    await NotificationsService().notificationsGet(token: token);
+    return Future.value(true);
+  });
 }
 
 class MyApp extends ConsumerWidget {
