@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'dart:isolate';
 import 'dart:ui';
-
 import 'package:dio/dio.dart';
 
 class NotificationController {
@@ -36,7 +35,6 @@ class NotificationController {
     receivePort = ReceivePort('Notification action port in main isolate')
       ..listen(
           (silentData) => onActionReceivedImplementationMethod(silentData));
-
     IsolateNameServer.registerPortWithName(
         receivePort!.sendPort, 'notification_action_port');
   }

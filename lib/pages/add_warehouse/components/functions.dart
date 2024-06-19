@@ -1,9 +1,9 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localization.dart';
-import 'package:masahaty/services/dio_files.dart';
-import '../../../services/dio_features.dart';
-import '../../../services/dio_govs&cities.dart';
+import 'package:masahaty/services/api/dio_files.dart';
+import '../../../services/api/dio_features.dart';
+import '../../../services/api/dio_govs&cities.dart';
 import 'cities_management.dart';
 
 final govs = Govs();

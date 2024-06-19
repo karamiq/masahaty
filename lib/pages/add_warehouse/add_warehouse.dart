@@ -9,16 +9,14 @@ import 'package:masahaty/models/location_model.dart';
 import 'package:masahaty/pages/add_warehouse/components/functions.dart';
 import 'package:masahaty/provider/current_user.dart';
 import 'package:masahaty/provider/location.dart';
-import 'package:masahaty/provider/selected_location.dart';
 import 'package:masahaty/routes/routes.dart';
-import 'package:masahaty/services/dio_storage.dart';
+import 'package:masahaty/services/api/dio_storage.dart';
 import '../../components/custom_elevated_button.dart';
 import '../../components/info_text_form_field.dart';
 import '../../components/show_selection_bottomsheet.dart';
 import '../../components/subtitle.dart';
 import '../../core/constants/constants.dart';
 import 'package:flutter_gen/gen_l10n/app_localization.dart';
-import '../../provider/location_helper.dart';
 import 'components/add_images.dart';
 import 'components/custom_radio_features.dart';
 import 'components/map_info.dart';
@@ -34,71 +32,50 @@ class AddWarehousePost extends ConsumerStatefulWidget {
 class _AddWarehousePostState extends ConsumerState<AddWarehousePost> {
   get currentUserToken => ref.read(currentUserProvider)?.token;
   get currentUserId => ref.read(currentUserProvider)?.id;
-
+  get currentLocation => ref.watch(locationProvider);
   final warehouseNameController = TextEditingController();
   final warehouseDescriptionController = TextEditingController();
   final numberOfRoomsController = TextEditingController();
   final pricePerNightController = TextEditingController();
-  final warehousSpaceController = TextEditingController();
-
-  int numberOfRooms = 0;
-  double pricePerNight = 0;
-  double space = 0;
-  String? govId;
-  String? cityId;
-  String? address;
-  List<String> featuresIds = [];
-  List<String> images = [];
+  final warehouseSpaceController = TextEditingController();
   List<File> tempImages = [];
-  double? warehouseLatitude = 0;
-  double? warehouseLongitude = 0;
-
-  final nameFormKey = GlobalKey<FormState>();
-  final descriptionFormKey = GlobalKey<FormState>();
-  final pricePerNightFormKey = GlobalKey<FormState>();
-  final govFormKey = GlobalKey<FormState>();
-  final cityFormKey = GlobalKey<FormState>();
-  final spaceFormKey = GlobalKey<FormState>();
-  final noumberOfRoomsFormKey = GlobalKey<FormState>();
+  LocationService? storageLocation;
+  final _formKey = GlobalKey<FormState>();
 
   bool cooling = false;
   bool roof = false;
-  bool garuded = false;
+  bool guarded = false;
   bool safe = false;
   bool securityCameras = false;
   bool govStateIsValid = true;
   bool cityStateIsValid = true;
-  String selectedGovermnt = '';
+  String selectedGoverment = '';
   String selectedCity = '';
   int imagesLimit = 9;
   bool isLoading = false;
-  bool addressSelected = true;
-  bool loadCurrentLocation = false;
-  final ImagePicker imagePicker = ImagePicker();
-
-  LocationService? storageLocation;
+  bool isAddressSelected = true;
+  bool isLoadCurrentLocation = false;
 
   void selectGov() async {
-    setState(() {});
     final temp = await callCustomBottomSheet(
       list: IraqiGoveronates(context).iraqStates,
       context: context,
     );
     if (temp != null) {
       setState(() {
-        selectedGovermnt = temp;
+        selectedGoverment = temp;
         govStateIsValid = true;
       });
     } else {
-      govStateIsValid = false;
+      setState(() {
+        govStateIsValid = false;
+      });
     }
   }
 
   void selectCity() async {
-    setState(() {});
-    dynamic temp = [];
-    temp = await callCustomBottomSheet(
-      list: getCities(context, selectedGovermnt),
+    final temp = await callCustomBottomSheet(
+      list: getCities(context, selectedGoverment),
       context: context,
     );
     if (temp != null) {
@@ -107,152 +84,136 @@ class _AddWarehousePostState extends ConsumerState<AddWarehousePost> {
         cityStateIsValid = true;
       });
     } else {
-      cityStateIsValid = false;
+      setState(() {
+        cityStateIsValid = false;
+      });
     }
   }
 
   void selectImages() async {
-    List<XFile>? returnedImages = await ImagePicker().pickMultiImage();
-    if (returnedImages.isNotEmpty) {
+    final ImagePicker imagePicker = ImagePicker();
+    final returnedImages = await imagePicker.pickMultiImage();
+    if (returnedImages != null) {
       setState(() {
-        for (var image in returnedImages) {
-          tempImages.add(File(image.path));
-        }
-        imagesLimit = (9 - tempImages.length);
+        tempImages.addAll(returnedImages.map((image) => File(image.path)));
+        imagesLimit = 9 - tempImages.length;
       });
     }
   }
 
   String? checkValidation(String? query) {
-    if (query == '' || query == null) {
+    if (query == null || query.isEmpty) {
       return AppLocalizations.of(context)!.phoneNumberErrorEmpty;
-    } else {
-      return null;
     }
+    return null;
   }
 
   bool validateForm() {
-    numberOfRooms = int.tryParse(numberOfRoomsController.text) ?? 0;
-    pricePerNight = double.tryParse(pricePerNightController.text) ?? 0;
-    space = double.tryParse(warehousSpaceController.text) ?? 0;
+    final numberOfRooms = int.tryParse(numberOfRoomsController.text) ?? 0;
+    final pricePerNight = double.tryParse(pricePerNightController.text) ?? 0;
+    final space = double.tryParse(warehouseSpaceController.text) ?? 0;
     bool isValid = true;
     if (storageLocation == null) {
-      setState(() {
-        addressSelected = false;
-        isValid = false;
-      });
-    } else {
-      addressSelected = true;
-    }
-    if (selectedGovermnt.isEmpty == true || selectedGovermnt == null) {
-      govStateIsValid == false;
-      setState(() {});
-      isValid == false;
-    }
-    if (selectedCity.isEmpty == true) {
-      cityStateIsValid == false;
-      setState(() {});
-      isValid == false;
-    }
-    if (!nameFormKey.currentState!.validate()) isValid = false;
-    if (!descriptionFormKey.currentState!.validate()) isValid = false;
-    if (pricePerNight <= 0 && !pricePerNightFormKey.currentState!.validate()) {
+      setState(() => isAddressSelected = false);
+      isValid = false;
+    }else{setState(() =>isAddressSelected = true);}
+    if (selectedGoverment.isEmpty) {
+      setState(() => govStateIsValid = false);
       isValid = false;
     }
-    if (space <= 0 && !spaceFormKey.currentState!.validate()) isValid = false;
-    if (numberOfRooms <= 0 && !noumberOfRoomsFormKey.currentState!.validate()) {
+    if (selectedCity.isEmpty) {
+      setState(() => cityStateIsValid = false);
       isValid = false;
     }
-    if (warehouseLatitude == 0 || warehouseLatitude == null) isValid = false;
-    if (warehouseLongitude == 0 || warehouseLongitude == null) isValid = false;
-    if (address == null) isValid = false;
+    if (!_formKey.currentState!.validate()) isValid = false;
+    if (pricePerNight <= 0) isValid = false;
+    if (space <= 0) isValid = false;
+    if (numberOfRooms <= 0) isValid = false;
     if (tempImages.length < 3) isValid = false;
+
     return isValid;
   }
 
   void postWarehouse() async {
+    if (!validateForm()) {
+      print('Form validation failed');
+      return;
+    }
     setState(() => isLoading = true);
-    govId = await getGovId(context, selectedGovermnt);
-    dynamic temp;
-    temp = await getCityId(context, selectedCity, selectedGovermnt);
-    address = temp?['name'];
-    cityId = temp?['id'];
-    if (validateForm()) {
-      featuresIds = await getFeaturesIds(
+    try {
+      final govId = await getGovId(context, selectedGoverment);
+      final cityInfo =
+          await getCityId(context, selectedCity, selectedGoverment);
+      final address = cityInfo?['name'];
+      final cityId = cityInfo?['id'];
+      final featuresIds = await getFeaturesIds(
         cooling: cooling,
         roof: roof,
-        garuded: garuded,
+        garuded: guarded,
         safe: safe,
         securityCameras: securityCameras,
       );
       final storageService = StorageService();
-      images = await uploadImages(tempImages, currentUserToken);
-      storageService.storagePost(
-          token: currentUserToken,
-          name: warehouseNameController.text,
-          description: warehouseDescriptionController.text,
-          price: pricePerNight,
-          numberOfRooms: numberOfRooms,
-          space: space,
-          latitude: warehouseLatitude!,
-          longitude: warehouseLongitude!,
-          govId: govId!,
-          cityId: cityId!,
-          address: address!,
-          featuresIds: featuresIds,
-          images: images);
+      final images = await uploadImages(tempImages, currentUserToken);
+
+      await storageService.storagePost(
+        token: currentUserToken,
+        name: warehouseNameController.text,
+        description: warehouseDescriptionController.text,
+        price: double.parse(pricePerNightController.text),
+        numberOfRooms: int.parse(numberOfRoomsController.text),
+        space: double.parse(warehouseSpaceController.text),
+        latitude: storageLocation!.latitude!,
+        longitude: storageLocation!.longitude!,
+        govId: govId!,
+        cityId: cityId!,
+        address: address!,
+        featuresIds: featuresIds,
+        images: images,
+      );
+
       setState(() => isLoading = false);
       context.pop();
-    } else {
-      print('try again');
+    } catch (error) {
       setState(() => isLoading = false);
+    }
+  }
+
+  void pickLocation() async {
+    final returnedLocation =
+        await context.pushNamed<LocationService?>(Routes.pickLocation);
+    if (returnedLocation != null) {
+      storageLocation = returnedLocation;
+      setState(() {});
+    }
+  }
+
+  void getLocation() async {
+    ref.watch(locationProvider.notifier).getCurrentLocation();
+    setState(() {
+      isLoadCurrentLocation = true;
+    });
+    final currentLocation = ref.watch(locationProvider);
+    if (currentLocation != null) {
+      storageLocation = currentLocation;
+      setState(() => isLoadCurrentLocation = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    void pickLocation() async {
-      ref.watch(selectLocationProvider);
-      dynamic returnedLocation =
-          await context.pushNamed<LocationService>(Routes.pickLocation);
-      setState(() {
-        storageLocation = returnedLocation;
-        warehouseLatitude = storageLocation?.latitude;
-        warehouseLongitude = storageLocation?.longitude;
-      });
-       print(await storageLocation);
-    }
-
-    void getLocation() async {
-    final currentLocation = ref.watch(locationProvider);
-      setState(() {
-        loadCurrentLocation = true;
-      });
-      ref.read(locationProvider.notifier).getCurrentLocation().then((_) async {
-        warehouseLatitude = currentLocation?.latitude;
-        warehouseLongitude = currentLocation?.longitude;
-        storageLocation = currentLocation;
-        storageLocation?.placemarks = await convertToAddress(
-            warehouseLatitude ?? 0, warehouseLongitude ?? 0);
-        setState(() {
-          loadCurrentLocation = false;
-        });
-           print(await storageLocation);
-      });
-    }
-
     return Scaffold(
       body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-              vertical: CustomPageTheme.bigPadding,
-              horizontal: CustomPageTheme.normalPadding),
+        padding: const EdgeInsets.symmetric(
+          vertical: CustomPageTheme.bigPadding,
+          horizontal: CustomPageTheme.normalPadding,
+        ),
+        child: Form(
+          key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(
-                height: CustomPageTheme.bigPadding,
-              ),
+              const SizedBox(height: CustomPageTheme.bigPadding),
               Row(
                 children: [
                   const CustomBackButton(),
@@ -264,20 +225,18 @@ class _AddWarehousePostState extends ConsumerState<AddWarehousePost> {
                       style:
                           const TextStyle(fontSize: CustomFontsTheme.bigSize),
                     ),
-                  )
+                  ),
                 ],
               ),
               SubTitle(ttt: AppLocalizations.of(context)!.warehouseName),
               InfoTextField(
                 controller: warehouseNameController,
-                formKey: nameFormKey,
                 validator: checkValidation,
               ),
               SubTitle(ttt: AppLocalizations.of(context)!.warehouseDiscription),
               InfoTextField(
                 maxLines: 4,
                 controller: warehouseDescriptionController,
-                formKey: descriptionFormKey,
                 validator: checkValidation,
               ),
               SubTitle(
@@ -285,19 +244,18 @@ class _AddWarehousePostState extends ConsumerState<AddWarehousePost> {
               InfoTextField(
                 controller: pricePerNightController,
                 keyboardType: TextInputType.number,
-                formKey: pricePerNightFormKey,
                 validator: checkValidation,
               ),
               SubTitle(ttt: AppLocalizations.of(context)!.governorate),
               SelectGov(
                 onTap: selectGov,
-                selectedGovermnt: selectedGovermnt,
+                selectedGoverment: selectedGoverment,
                 stateIsValid: govStateIsValid,
               ),
               SubTitle(ttt: AppLocalizations.of(context)!.theCity),
               SelectGov(
                 onTap: selectCity,
-                selectedGovermnt: selectedCity,
+                selectedGoverment: selectedCity,
                 stateIsValid: cityStateIsValid,
               ),
               SubTitle(ttt: AppLocalizations.of(context)!.warehousePictures),
@@ -306,9 +264,7 @@ class _AddWarehousePostState extends ConsumerState<AddWarehousePost> {
                 selectImages: selectImages,
                 selectedImages: tempImages,
               ),
-              const SizedBox(
-                height: 16,
-              ),
+              const SizedBox(height: 16),
               Text(
                 AppLocalizations.of(context)!.warehouseAddThreePicsAtLeast,
                 style:
@@ -319,7 +275,6 @@ class _AddWarehousePostState extends ConsumerState<AddWarehousePost> {
               InfoTextField(
                 controller: numberOfRoomsController,
                 keyboardType: TextInputType.number,
-                formKey: noumberOfRoomsFormKey,
                 validator: checkValidation,
               ),
               SubTitle(
@@ -327,41 +282,38 @@ class _AddWarehousePostState extends ConsumerState<AddWarehousePost> {
                       "${AppLocalizations.of(context)!.space} ${AppLocalizations.of(context)!.m}"),
               InfoTextField(
                 keyboardType: TextInputType.number,
-                controller: warehousSpaceController,
-                formKey: spaceFormKey,
+                controller: warehouseSpaceController,
                 validator: checkValidation,
               ),
               SubTitle(ttt: AppLocalizations.of(context)!.cooling),
               CustomRadioFeatures(
-                onChange: (value) => cooling = value,
+                onChange: (value) => setState(() => cooling = value),
                 val: cooling,
               ),
               SubTitle(ttt: AppLocalizations.of(context)!.roof),
               CustomRadioFeatures(
-                onChange: (value) => roof = value,
+                onChange: (value) => setState(() => roof = value),
                 val: roof,
               ),
               SubTitle(ttt: AppLocalizations.of(context)!.secured),
               CustomRadioFeatures(
-                onChange: (value) => garuded = value,
-                val: garuded,
+                onChange: (value) => setState(() => guarded = value),
+                val: guarded,
               ),
               SubTitle(ttt: AppLocalizations.of(context)!.safe),
               CustomRadioFeatures(
-                onChange: (value) => safe = value,
+                onChange: (value) => setState(() => safe = value),
                 val: safe,
               ),
               SubTitle(ttt: AppLocalizations.of(context)!.securityCameras),
               CustomRadioFeatures(
-                onChange: (value) => securityCameras = value,
+                onChange: (value) => setState(() => securityCameras = value),
                 val: securityCameras,
               ),
-              const SizedBox(
-                height: CustomPageTheme.normalPadding,
-              ),
+              const SizedBox(height: CustomPageTheme.normalPadding),
               MapInfo(
-                addressSelected: addressSelected,
-                loadCurrentLocation: loadCurrentLocation,
+                addressSelected: isAddressSelected,
+                loadCurrentLocation: isLoading,
                 storageLocation: storageLocation,
                 isLoading: isLoading,
                 getLocation: getLocation,
@@ -370,11 +322,9 @@ class _AddWarehousePostState extends ConsumerState<AddWarehousePost> {
               if (currentUserId != null)
                 CustomElevatedButton(
                   onPressed: postWarehouse,
-                  label: isLoading == false
-                      ? Text(AppLocalizations.of(context)!.postWarehouse)
-                      : const CircularProgressIndicator(
-                          color: Colors.white,
-                        ),
+                  label: isLoading
+                      ? const CircularProgressIndicator(color: Colors.white)
+                      : Text(AppLocalizations.of(context)!.postWarehouse),
                 ),
               if (currentUserId == null)
                 CustomElevatedButton(

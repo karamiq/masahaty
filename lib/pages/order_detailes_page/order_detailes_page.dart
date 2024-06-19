@@ -8,7 +8,7 @@ import 'package:masahaty/pages/wharehouse_pages/components/detailes_page_skeleto
 import 'package:masahaty/pages/wharehouse_pages/components/images_slides.dart';
 import 'package:masahaty/provider/change_language.dart';
 import 'package:masahaty/provider/current_user.dart';
-import 'package:masahaty/services/dio_order.dart';
+import 'package:masahaty/services/api/dio_order.dart';
 import 'package:flutter_gen/gen_l10n/app_localization.dart';
 import '../../components/viewed_item_title.dart';
 import '../../models/order_model.dart';

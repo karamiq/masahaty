@@ -37,10 +37,16 @@ dependencies:
   flutter_rating_bar: ^4.0.1
   shimmer: ^3.0.0
   awesome_notifications: ^0.9.3+1
-  workmanager: ^0.5.2
+  #workmanager: ^0.5.2
+  widget_to_marker: ^1.0.5
+  flutter_background_service: ^5.0.5
+  
+  flutter_background_service_android: ^6.2.2
+  permission_handler: ^11.3.1
+  flutter_local_notifications: ^17.1.2
   #awesome_notifications_core: ^0.9.0
   #palette_generator: ^0.3.3+3
-
+  
 dev_dependencies:
   flutter_test:
     sdk: flutter

@@ -155,8 +155,7 @@
   "m":"m",
   "doYouHaveAnAccount":"Do you have an account?",
   "youAreNewUser": "You are new user?",
-  "choseValidLocation":"Chose valid location"
-
-
-  
+  "choseValidLocation":"Chose valid location",
+  "notExistingUser":"This user does not exist",
+  "phoneNumberIsUsed":"This phone number is used"
 }

@@ -154,5 +154,7 @@
   "m": "م",
   "doYouHaveAnAccount":"هل لديك حساب؟",
   "youAreNewUser": "أنت مستخدم جديد؟",
-  "choseValidLocation":"أختر موقع صالح"
+  "choseValidLocation":"أختر موقع صالح",
+  "notExistingUser":"هذا المستخدم غير موجود",
+  "phoneNumberIsUsed":"رقم الهاتف مستخدم"
 }

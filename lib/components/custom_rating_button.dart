@@ -5,7 +5,7 @@ import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:masahaty/provider/current_user.dart';
-import 'package:masahaty/services/dio_storage.dart';
+import 'package:masahaty/services/api/dio_storage.dart';
 import '../core/constants/constants.dart';
 import 'package:flutter_gen/gen_l10n/app_localization.dart';
 import 'signin_first.dart';

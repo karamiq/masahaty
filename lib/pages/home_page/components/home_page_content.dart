@@ -33,9 +33,10 @@ class HomePageContent extends StatelessWidget {
           child: storagesRecentlyAdded == null || storagesRecentlyAdded!.isEmpty
               ? const Center(child: CircularProgressIndicator())
               : ListView.separated(
+                padding: const EdgeInsets.symmetric(horizontal: CustomPageTheme.normalPadding),
                   itemCount: storagesRecentlyAdded!.length,
                   separatorBuilder: (context, index) => const SizedBox(
-                    width: 20,
+                    width: CustomPageTheme.normalPadding,
                   ),
                   scrollDirection: Axis.horizontal,
                   itemBuilder: (context, index) {

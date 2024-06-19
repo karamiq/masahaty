@@ -1,10 +1,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localization.dart';
+import 'package:masahaty/pages/notifications_page/components/notification_item.dart';
 import '../../../components/viewed_item_title.dart';
 import '../../../core/constants/constants.dart';
 import '../../../models/notifications_model.dart';
-import '../notifications_page.dart';
 
 class HasDataNotifications extends StatelessWidget {
   const HasDataNotifications({
@@ -44,7 +44,7 @@ class HasDataNotifications extends StatelessWidget {
                 itemBuilder: (context, index) {
                   Notif notification =
                       todayNotifications[index];
-                  return buildNotificationItem(
+                  return NotificationItem(
                       context: context,
                       notification: notification,
                       currentLanguage: currentLanguage,
@@ -77,7 +77,7 @@ class HasDataNotifications extends StatelessWidget {
                 itemBuilder: (context, index) {
                   Notif notification =
                       previousNotifications[index];
-                  return buildNotificationItem(
+                  return NotificationItem(
                       context: context,
                       notification: notification,
                       currentLanguage: currentLanguage,

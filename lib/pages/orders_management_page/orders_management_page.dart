@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_gen/gen_l10n/app_localization.dart';
 import 'package:intl/intl.dart';
 import 'package:masahaty/models/order_model.dart';
-import 'package:masahaty/services/dio_order.dart';
+import 'package:masahaty/services/api/dio_order.dart';
 import '../../components/custom_back_botton.dart';
 import '../../core/constants/constants.dart';
 import '../../provider/current_user.dart';

@@ -66,7 +66,7 @@ class AppRouter {
         path: Routes.tabsPage,
         name: Routes.tabsPage,
         builder: (BuildContext context, GoRouterState state) =>
-            const TabsPage(),
+             TabsPage(),
       ),
       GoRoute(
         path: Routes.addPostPage,

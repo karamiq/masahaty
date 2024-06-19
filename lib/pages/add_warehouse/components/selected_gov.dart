@@ -7,11 +7,11 @@ class SelectGov extends StatelessWidget {
   const SelectGov(
       {super.key,
       required this.onTap,
-      required this.selectedGovermnt,
+      required this.selectedGoverment,
       required this.stateIsValid});
 
   final Function() onTap;
-  final String selectedGovermnt;
+  final String selectedGoverment;
 
   final bool? stateIsValid;
   @override
@@ -41,7 +41,7 @@ class SelectGov extends StatelessWidget {
       ),
       child: ListTile(
         onTap: onTap,
-        title: Text(selectedGovermnt),
+        title: Text(selectedGoverment),
         trailing: const Icon(
           Icons.keyboard_arrow_down,
           color: CustomColorsTheme.headLineColor,

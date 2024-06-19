@@ -11,7 +11,7 @@ import 'package:masahaty/pages/wharehouse_pages/components/info_table.dart';
 import 'package:masahaty/pages/wharehouse_pages/wharehouse_reserve_form.dart';
 import 'package:masahaty/provider/change_language.dart';
 import 'package:masahaty/provider/current_user.dart';
-import 'package:masahaty/services/dio_storage.dart';
+import 'package:masahaty/services/api/dio_storage.dart';
 import '../../components/custom_chips.dart';
 import '../../components/viewed_item_title.dart';
 import '../../routes/routes.dart';

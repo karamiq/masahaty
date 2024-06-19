@@ -1,5 +1,11 @@
+import 'dart:async';
+import 'dart:ui';
+
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_background_service/flutter_background_service.dart';
+import 'package:flutter_background_service_android/flutter_background_service_android.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:masahaty/core/constants/constants.dart';
@@ -10,9 +16,6 @@ import 'package:masahaty/provider/notification_statues.dart';
 import 'package:masahaty/routes/routes.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:workmanager/workmanager.dart';
-
-import 'services/dio_notifications.dart';
 import 'services/notifications_handlers.dart';
 
 void main() async {
@@ -40,25 +43,83 @@ void main() async {
   if (!isAllowedToSendNotifications) {
     AwesomeNotifications().requestPermissionToSendNotifications();
   }
-  Workmanager().initialize(callbackDispatcher, isInDebugMode: true);
   WidgetsFlutterBinding.ensureInitialized();
-  await NotificationController.initializeLocalNotifications();
-  await NotificationController.initializeIsolateReceivePort();
+  await initializeService();
+
+  //await NotificationController.initializeLocalNotifications();
+  //await NotificationController.initializeIsolateReceivePort();
   await SharedPreferences.getInstance();
 
   // Run the app
   runApp(const ProviderScope(child: MyApp()));
 }
+////////////////////////////////////////////////////////////////////////////////
 
-void callbackDispatcher() {
-  Workmanager().executeTask((task, inputData) async {
-    // Call your NotificationsService here
-    final token = inputData?['token'];
-    await NotificationsService().notificationsGet(token: token);
-    return Future.value(true);
+// this will be used as notification channel id
+const notificationChannelId = 'my_foreground';
+
+// this will be used for notification id, so you can update your custom notification with this id.
+const notificationId = 888;
+
+Future<void> initializeService() async {
+  final service = FlutterBackgroundService();
+
+  const AndroidNotificationChannel channel = AndroidNotificationChannel(
+    notificationChannelId, // id
+    'MY FOREGROUND SERVICE', // title
+    description:
+        'This channel is used for important notifications.', // description
+    importance: Importance.low, // importance must be at low or higher level
+  );
+
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+
+  await flutterLocalNotificationsPlugin
+      .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>()
+      ?.createNotificationChannel(channel);
+
+  await service.configure(
+    androidConfiguration: AndroidConfiguration(
+      // this will be executed when app is in foreground or background in separated isolate
+      onStart: onStart,
+
+      // auto start service
+      autoStart: true,
+      isForegroundMode: true,
+
+      notificationChannelId:
+          notificationChannelId, // this must match with notification channel you created above.
+      initialNotificationTitle: 'AWESOME SERVICE',
+      initialNotificationContent: 'Initializing',
+      foregroundServiceNotificationId: notificationId,
+    ),
+    iosConfiguration: IosConfiguration(),
+  );
+}
+
+@pragma('vm:entry-point')
+Future<void> onStart(ServiceInstance service) async {
+  // Only available for flutter 3.0.0 and later
+  DartPluginRegistrant.ensureInitialized();
+
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+
+  // bring to foreground
+  Timer.periodic(const Duration(seconds: 5), (timer) async {
+    if (service is AndroidServiceInstance) {
+      if (await service.isForegroundService()) {
+        AwesomeNotifications().createNotification(
+            content: NotificationContent(id: 2, channelKey: 'basic_channel',
+            title: 'fdlkjssss',body: 'lkfjdsssssssss'));
+      }
+    }
   });
 }
 
+/////////////////////////////////////////////////////////////////////////////////
 class MyApp extends ConsumerWidget {
   const MyApp({super.key});
 

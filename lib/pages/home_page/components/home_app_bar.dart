@@ -105,7 +105,7 @@ class _HomePageBarState extends State<HomePageBar> {
                       ),
                     ],
                   ),
-          )
+          ),
         ],
       ),
     );

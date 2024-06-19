@@ -3,8 +3,8 @@ import 'package:masahaty/components/custom_back_botton.dart';
 import 'package:masahaty/components/warehouse_card.dart';
 import 'package:masahaty/components/warehouse_card_skeleton.dart';
 import 'package:masahaty/models/order_model.dart';
-import 'package:masahaty/services/dio_features.dart';
-import 'package:masahaty/services/dio_storage.dart';
+import 'package:masahaty/services/api/dio_features.dart';
+import 'package:masahaty/services/api/dio_storage.dart';
 
 import '../../core/constants/constants.dart';
 import '../../models/storage&features_model.dart';

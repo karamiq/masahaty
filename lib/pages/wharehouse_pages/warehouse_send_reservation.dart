@@ -12,8 +12,8 @@ import '../../components/custom_back_botton.dart';
 import '../../components/viewed_item_title.dart';
 import '../../core/constants/constants.dart';
 import '../../models/storage&features_model.dart';
-import '../../services/dio_order.dart';
-import '../../services/dio_storage.dart';
+import '../../services/api/dio_order.dart';
+import '../../services/api/dio_storage.dart';
 import 'components/order_info.dart';
 import 'components/send_reservation_head.dart';
 

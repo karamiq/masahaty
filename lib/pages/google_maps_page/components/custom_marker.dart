@@ -1,34 +1,42 @@
+
 import 'package:flutter/material.dart';
-import 'package:masahaty/core/constants/constants.dart';
+
+import '../../../core/constants/constants.dart';
 
 class CustomMarker extends StatelessWidget {
-  final String title;
-  final Color color;
+  const CustomMarker({
+    super.key,
+    required this.price,
+    required this.currency,
+  });
 
-  const CustomMarker({super.key, required this.title, required this.color});
+  final String price;
+  final String currency;
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
+    return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Align(
-          alignment: Alignment.topLeft,
-          child: Container(
-            height: 10, width: 40,
-            decoration: const BoxDecoration(
+        Container(
+          padding: const EdgeInsets.symmetric(
+              horizontal: CustomPageTheme.normalPadding / 1.5,
+              vertical: CustomPageTheme.smallPadding / 2),
+          decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.only(topLeft: Radius.circular(CoustomBorderTheme.normalBorderRaduis), topRight: Radius.circular(CoustomBorderTheme.normalBorderRaduis), bottomLeft: Radius.circular(CoustomBorderTheme.normalBorderRaduis))
-            ),
-            child: Text(title,
-              style: const TextStyle(
-                //fontSize: 50
-              ),),
+              borderRadius: BorderRadius.circular(
+                  CoustomBorderTheme.normalBorderRaduis * 2)),
+          child: Text(
+            '$currency $price',
+            style: const TextStyle(color: Colors.black),
+            textAlign: TextAlign.center,
           ),
         ),
-        const Align(
-          alignment: Alignment.bottomRight,
-          child: Icon(Icons.location_on_outlined,color: CustomColorsTheme.headLineColor,),
-        )
+        const Icon(
+          Icons.place,
+          color: CustomColorsTheme.headLineColor,
+          size: 35,
+        ),
       ],
     );
   }

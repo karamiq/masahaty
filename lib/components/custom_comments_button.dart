@@ -5,7 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:masahaty/components/signin_first.dart';
 import 'package:masahaty/provider/change_language.dart';
 import 'package:masahaty/provider/current_user.dart';
-import 'package:masahaty/services/dio_comments.dart';
+import 'package:masahaty/services/api/dio_comments.dart';
 import 'package:flutter_gen/gen_l10n/app_localization.dart';
 import '../models/comments&replies_model.dart';
 import '../core/constants/constants.dart';

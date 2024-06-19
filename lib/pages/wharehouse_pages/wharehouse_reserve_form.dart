@@ -154,7 +154,6 @@ class _WharehouseReserveFormState extends State<WharehouseReserveForm> {
               InfoTextField(
                 keyboardType: TextInputType.number,
                 controller: countController,
-                formKey: countFormKey,
                 validator: checkValidation,
               ),
               const SizedBox(height: CustomPageTheme.smallPadding),

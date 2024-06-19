@@ -3,7 +3,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import '../../../core/constants/constants.dart';
 import '../../../models/storage&features_model.dart';
-import '../../../services/dio_storage.dart';
+import '../../../services/api/dio_storage.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter_gen/gen_l10n/app_localization.dart';
 import '../../wharehouse_pages/warehouse_details_page.dart';

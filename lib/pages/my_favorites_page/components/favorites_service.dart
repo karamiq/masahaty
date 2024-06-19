@@ -19,11 +19,9 @@ dynamic get favoritesList => ref.watch(favoritesProvider);
             ?.firstWhere((wharehouse) => wharehouse.id == wharehouseId));
       }
     }
-
     bool isFavorite(String id) {
       return allWarehouses.any((warehouse) => warehouse.id == id);
     }
-  
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
   }

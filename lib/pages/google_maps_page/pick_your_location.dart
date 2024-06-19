@@ -7,9 +7,9 @@ import 'package:flutter_gen/gen_l10n/app_localization.dart';
 import 'package:masahaty/components/custom_back_botton.dart';
 import 'package:masahaty/core/constants/constants.dart';
 import 'package:masahaty/models/location_model.dart';
-import 'package:masahaty/provider/selected_location.dart';
 import '../../core/constants/assets.dart';
 import '../../provider/location.dart';
+import '../../provider/location_helper.dart';
 
 class PickYourLocation extends ConsumerStatefulWidget {
   const PickYourLocation({super.key});
@@ -22,51 +22,59 @@ class _PickYourLocationState extends ConsumerState<PickYourLocation> {
   late GoogleMapController mapController;
   String themeForMap = '';
   Set<Marker> markers = {};
-  bool heSelected = false;
+  bool locationSelected = false;
   bool isPlaceValid = true;
+  bool isLoading = false;
+  LocationService? locationService;
+
   @override
   void initState() {
     super.initState();
-    DefaultAssetBundle.of(context)
-        .loadString(Assets.assetsThemesDarkMapStyle)
-        .then((value) {
-      setState(() {
-        themeForMap = value;
-      });
-    });
+    _loadMapTheme();
   }
 
-  LocationService? locationService;
-  void selectLocation(LatLng pos) async {
-    try {
-      List<Placemark> placemarks =
-          await placemarkFromCoordinates(pos.latitude, pos.longitude);
-      setState(() {
-        isPlaceValid = true;
-        locationService = LocationService(
-          latitude: pos.latitude,
-          longitude: pos.longitude,
-          placemarks: placemarks.isNotEmpty ? placemarks[0] : null,
-        );
-        ref
-            .watch(selectLocationProvider.notifier)
-            .selectLocation(locationService);
-      });
-    } catch (e) {
-      setState(() => isPlaceValid = false);
-      print(e);
+  Future<void> _loadMapTheme() async {
+    themeForMap = await DefaultAssetBundle.of(context).loadString(Assets.assetsThemesDarkMapStyle);
+    if (mounted) {
+      setState(() {});
     }
   }
 
+  Future<void> selectLocation(LatLng pos) async {
+    setState(() {
+      isLoading = true;
+      isPlaceValid = true;
+    });
+
+    try {
+      Placemark placemark = await convertToAddress(pos.latitude, pos.longitude);
+      setState(() {
+        locationService = LocationService(
+          latitude: pos.latitude,
+          longitude: pos.longitude,
+          placemarks: placemark,
+        );
+        isPlaceValid = true;
+      });
+    } catch (e) {
+      setState(() {
+        isPlaceValid = false;
+        locationService = null;
+      });
+      print(e);
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
   @override
   Widget build(BuildContext context) {
     final userLocation = ref.watch(locationProvider);
     LatLng cameraPosition = defaultLocation;
 
-    if (userLocation != null &&
-        userLocation.latitude != null &&
-        userLocation.longitude != null) {
-      cameraPosition = LatLng(userLocation.latitude!, userLocation.longitude!);
+    if (userLocation?.latitude != null && userLocation?.longitude != null) {
+      cameraPosition = LatLng(userLocation!.latitude!, userLocation.longitude!);
     }
     return Scaffold(
       appBar: AppBar(
@@ -80,30 +88,26 @@ class _PickYourLocationState extends ConsumerState<PickYourLocation> {
       body: Stack(
         children: [
           GoogleMap(
-              myLocationButtonEnabled: false,
-              myLocationEnabled: true,
-              zoomControlsEnabled: false,
-              initialCameraPosition:
-                  CameraPosition(target: cameraPosition, zoom: 10),
-              onMapCreated: (controller) {
-                mapController = controller;
-                // ignore: deprecated_member_use
-                mapController.setMapStyle(themeForMap);
-              },
-              onTap: (pos) {
-                setState(() {
-                  selectLocation(pos);
-                  heSelected = true;
-                  markers.clear();
-                  markers.add(
-                    Marker(
-                      markerId: const MarkerId('m1'),
-                      position: pos,
-                    ),
-                  );
-                });
-              },
-              markers: markers),
+            myLocationButtonEnabled: false,
+            myLocationEnabled: true,
+            zoomControlsEnabled: false,
+            initialCameraPosition: CameraPosition(target: cameraPosition, zoom: 10),
+            onMapCreated: (controller) {
+              mapController = controller;
+              mapController.setMapStyle(themeForMap);
+            },
+            onTap: (pos) {
+              setState(() {
+                locationSelected = true;
+                markers.clear();
+                markers.add(Marker(markerId: const MarkerId('m1'), position: pos));
+              });
+              selectLocation(pos);
+            },
+            markers: markers,
+          ),
+          if (isLoading)
+            const Center(child: CircularProgressIndicator()),
           Positioned(
             bottom: 30.0,
             left: 95.0,
@@ -111,16 +115,18 @@ class _PickYourLocationState extends ConsumerState<PickYourLocation> {
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: ElevatedButton(
-                onPressed: heSelected && isPlaceValid
+                onPressed: locationSelected && isPlaceValid && !isLoading
                     ? () {
-                        context.pop(locationService);
+                        if (locationService != null) {
+                          context.pop<LocationService?>(locationService);
+                        }
                       }
                     : null,
                 child: Text(AppLocalizations.of(context)!.pickLocation),
               ),
             ),
           ),
-          if (isPlaceValid == false)
+          if (!isPlaceValid)
             Positioned(
               top: 30.0,
               left: 95.0,
@@ -128,18 +134,19 @@ class _PickYourLocationState extends ConsumerState<PickYourLocation> {
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Container(
-                    alignment: Alignment.center,
-                    padding:
-                        const EdgeInsets.all(CustomPageTheme.normalPadding),
-                    decoration: const BoxDecoration(
-                      color: Color.fromARGB(131, 186, 26, 26),
+                  alignment: Alignment.center,
+                  padding: const EdgeInsets.all(CustomPageTheme.normalPadding),
+                  decoration: const BoxDecoration(
+                    color: Color.fromARGB(131, 186, 26, 26),
+                  ),
+                  child: Text(
+                    AppLocalizations.of(context)!.choseValidLocation,
+                    style: const TextStyle(
+                      fontWeight: CustomFontsTheme.bigWeight,
+                      color: Colors.white,
                     ),
-                    child: Text(
-                      AppLocalizations.of(context)!.choseValidLocation,
-                      style: const TextStyle(
-                        fontWeight: CustomFontsTheme.bigWeight,
-                        color: Colors.white),
-                    )),
+                  ),
+                ),
               ),
             ),
         ],

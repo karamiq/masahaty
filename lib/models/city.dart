@@ -6,7 +6,6 @@ class City {
   String name;
   String govId;
   String govName;
-
   City({
     required this.id,
     required this.deleted,

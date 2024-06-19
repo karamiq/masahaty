@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:masahaty/models/order_model.dart';
 import 'package:masahaty/pages/order_detailes_page/order_detailes_page.dart';
 import 'package:masahaty/provider/current_user.dart';
-import 'package:masahaty/services/dio_order.dart';
+import 'package:masahaty/services/api/dio_order.dart';
 
 import '../../components/custom_back_botton.dart';
 import '../../core/constants/constants.dart';
