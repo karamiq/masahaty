@@ -34,10 +34,8 @@ class _CustomFavoritesButtonState extends ConsumerState<CustomFavoritesButton> {
         ref.read(favoritesProvider.notifier).addToFavorites(temp);
       }
     }
-
     bool isFavorite(String id) {
         return favoritesList!.any((warehouse) => warehouse.id == id);
-      
     }
     void add() {
       addToFavorites(widget.id);

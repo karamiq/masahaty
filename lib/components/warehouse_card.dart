@@ -6,7 +6,8 @@ import 'package:masahaty/components/custom_rating_button.dart';
 import 'package:masahaty/pages/wharehouse_pages/warehouse_details_page.dart';
 import '../core/constants/constants.dart';
 
-class WarehouseCard extends StatelessWidget {
+
+class WarehouseCard extends StatefulWidget {
   const WarehouseCard({
     super.key,
     required this.governorate,
@@ -16,8 +17,9 @@ class WarehouseCard extends StatelessWidget {
     required this.imagePath,
     required this.price,
     required this.id,
-    required this.rating
+    required this.rating,
   });
+
   final String id;
   final String governorate;
   final String district;
@@ -28,17 +30,28 @@ class WarehouseCard extends StatelessWidget {
   final double rating;
 
   @override
-  Widget build(BuildContext context) {
-    void warehouseInfoPage() =>Navigator.of(context).push(MaterialPageRoute(builder: (c) => WarehouseDetailesPage(id: id)));
+  createState() => _WarehouseCardState();
+}
 
-    final formattedPrice = NumberFormat.decimalPattern().format(price);
+class _WarehouseCardState extends State<WarehouseCard> {
+  @override
+  Widget build(BuildContext context) {
+    void warehouseInfoPage() async {
+      await Navigator.of(context).push(
+        MaterialPageRoute(builder: (c) => WarehouseDetailesPage(id: widget.id)),
+      );
+       // This will refresh the state when you return to this page
+       //when changing the favorite status
+      setState(() {});
+    }
+    final formattedPrice = NumberFormat.decimalPattern().format(widget.price);
 
     return InkWell(
       onTap: () => warehouseInfoPage(),
       child: Container(
         padding: const EdgeInsets.all(CustomPageTheme.normalPadding),
         height: 337,
-        width: 347,
+        width: 377,
         decoration: BoxDecoration(
           border: Border.all(color: Colors.grey, width: 0.1),
           color: Colors.white,
@@ -67,7 +80,7 @@ class WarehouseCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(
                         CoustomBorderTheme.normalBorderRaduis),
                     child: Image.network(
-                      imagePath,
+                      widget.imagePath,
                       height: 200,
                       width: 347,
                       fit: BoxFit.cover,
@@ -78,8 +91,8 @@ class WarehouseCard extends StatelessWidget {
                    child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      CustomFavoritesButton(id: id),
-                      CustomRatingButton(warehouseRating: rating, id:id)
+                      CustomFavoritesButton(id: widget.id),
+                      CustomRatingButton(warehouseRating: widget.rating, id: widget.id)
                     ],
                    ),
                  )
@@ -90,14 +103,14 @@ class WarehouseCard extends StatelessWidget {
               height: 10,
             ),
             Text(
-              title,
+              widget.title,
               style: const TextStyle(
                 fontWeight: CustomFontsTheme.bigWeight,
                 fontSize: CustomFontsTheme.bigSize,
               ),
             ),
             Text(
-              discription,
+              widget.discription,
               maxLines: 2,
               style: const TextStyle(
                 color: CustomColorsTheme.descriptionColor,
@@ -111,7 +124,7 @@ class WarehouseCard extends StatelessWidget {
                   children: [
                     const Icon(Icons.location_on_outlined,
                         color: CustomColorsTheme.headLineColor),
-                    Text('$governorate, $district'),
+                    Text('${widget.governorate}, ${widget.district}'),
                   ],
                 ),
                 Row(

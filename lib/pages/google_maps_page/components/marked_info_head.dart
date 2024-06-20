@@ -6,7 +6,6 @@ import '../../../components/custom_comments_button.dart';
 import '../../../components/custom_favorites_button.dart';
 import '../../../components/viewed_item_title.dart';
 import '../../../core/constants/constants.dart';
-import '../../../models/order_model.dart';
 import '../../../models/storage&features_model.dart';
 import 'package:flutter_gen/gen_l10n/app_localization.dart';
 

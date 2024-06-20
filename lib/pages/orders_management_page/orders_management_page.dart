@@ -19,17 +19,19 @@ class OrdersManagementPage extends ConsumerStatefulWidget {
 class _OrdersManagementPageState extends ConsumerState<OrdersManagementPage> {
   get currentUser => ref.read(currentUserProvider);
   List<Order> currentOrders = [];
+  bool isLoading = false;
 
   OrderService orderService = OrderService();
 
   void getOrders() async {
+    setState(() => isLoading = true);
     dynamic orders = await orderService.orderGet();
     for (Order order in orders) {
       if (order.owner.id == currentUser.id) {
         currentOrders.add(order);
       }
     }
-    setState(() {});
+    setState(() => isLoading = false);
   }
 
   @override
@@ -41,7 +43,11 @@ class _OrdersManagementPageState extends ConsumerState<OrdersManagementPage> {
   @override
   Widget build(BuildContext context) {
     Widget content;
-    if (currentOrders.isEmpty) {
+    if (isLoading) {
+      content = const Center(
+        child: CircularProgressIndicator(),
+      );
+    }else if (currentOrders.isEmpty) {
       content = Center(
         child: Text(
             "${AppLocalizations.of(context)!.orderManagement} ${AppLocalizations.of(context)!.empty}"),
@@ -55,85 +61,83 @@ class _OrdersManagementPageState extends ConsumerState<OrdersManagementPage> {
           height: CustomPageTheme.normalPadding,
         ),
         itemBuilder: (context, index) {
-            return Column(
-              children: [
-                Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                        width: CoustomBorderTheme.borderWidth,
-                        color: CustomColorsTheme.dividerColor),
-                    borderRadius: BorderRadius.circular(
-                        CoustomBorderTheme.normalBorderRaduis),
+          return Column(
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  border: Border.all(
+                      width: CoustomBorderTheme.borderWidth,
+                      color: CustomColorsTheme.dividerColor),
+                  borderRadius: BorderRadius.circular(
+                      CoustomBorderTheme.normalBorderRaduis),
+                ),
+                child: ListTile(
+                  leading: CircleAvatar(
+                    radius: CoustomIconTheme.normalSize,
+                    backgroundImage:
+                        NetworkImage(currentOrders[index].images[0]),
                   ),
-                  child: ListTile(
-                    leading: CircleAvatar(
-                      radius: CoustomIconTheme.normalSize,
-                      backgroundImage:
-                          NetworkImage(currentOrders[index].images[0]),
-                    ),
-                    title: Text(currentOrders[index].storage.name),
-                    subtitle: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Text(currentOrders[index].renter.fullName),
-                        Text(
-                          DateFormat('d.M.yyyy')
-                              .format(currentOrders[index].creationDate)
-                              .toString(),
-                        ),
-                        Text(
-                          DateFormat('d.M.yyyy')
-                              .format(currentOrders[index].endDate)
-                              .toString(),
-                        ),
-                      ],
-                    ),
+                  title: Text(currentOrders[index].storage.name),
+                  subtitle: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Text(currentOrders[index].renter.fullName),
+                      Text(
+                        DateFormat('d.M.yyyy')
+                            .format(currentOrders[index].creationDate)
+                            .toString(),
+                      ),
+                      Text(
+                        DateFormat('d.M.yyyy')
+                            .format(currentOrders[index].endDate)
+                            .toString(),
+                      ),
+                    ],
                   ),
                 ),
-                Row(
-                  children: [
-                    Expanded(
-                        child: Padding(
-                      padding:
-                          const EdgeInsets.all(CustomPageTheme.smallPadding),
-                      child: ElevatedButton(
-                          style: TextButton.styleFrom(
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(
-                                      CoustomBorderTheme.normalBorderRaduis)),
-                              backgroundColor:
-                                  CustomColorsTheme.availableRadioColor),
-                          onPressed: () async {
-                            await orderService.orderAccept(
-                                token: currentUser.token,
-                                id: currentOrders[index].id);
-                                print(currentOrders[index].id);
-                          },
-                          child: Text(AppLocalizations.of(context)!.accept)),
-                    )),
-                    Expanded(
-                        child: Padding(
-                      padding:
-                          const EdgeInsets.all(CustomPageTheme.smallPadding),
-                      child: ElevatedButton(
-                          style: TextButton.styleFrom(
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(
-                                      CoustomBorderTheme.normalBorderRaduis)),
-                              backgroundColor:
-                                  CustomColorsTheme.unAvailableRadioColor),
-                          onPressed: () async {
-                            await orderService.orderReject(
-                                token: currentUser.token,
-                                id: currentOrders[index].id);
-                            print(currentOrders[index].id);
-                          },
-                          child: Text(AppLocalizations.of(context)!.reject)),
-                    )),
-                  ],
-                )
-              ],
-            );
+              ),
+              Row(
+                children: [
+                  Expanded(
+                      child: Padding(
+                    padding: const EdgeInsets.all(CustomPageTheme.smallPadding),
+                    child: ElevatedButton(
+                        style: TextButton.styleFrom(
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(
+                                    CoustomBorderTheme.normalBorderRaduis)),
+                            backgroundColor:
+                                CustomColorsTheme.availableRadioColor),
+                        onPressed: () async {
+                          await orderService.orderAccept(
+                              token: currentUser.token,
+                              id: currentOrders[index].id);
+                          print(currentOrders[index].id);
+                        },
+                        child: Text(AppLocalizations.of(context)!.accept)),
+                  )),
+                  Expanded(
+                      child: Padding(
+                    padding: const EdgeInsets.all(CustomPageTheme.smallPadding),
+                    child: ElevatedButton(
+                        style: TextButton.styleFrom(
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(
+                                    CoustomBorderTheme.normalBorderRaduis)),
+                            backgroundColor:
+                                CustomColorsTheme.unAvailableRadioColor),
+                        onPressed: () async {
+                          await orderService.orderReject(
+                              token: currentUser.token,
+                              id: currentOrders[index].id);
+                          print(currentOrders[index].id);
+                        },
+                        child: Text(AppLocalizations.of(context)!.reject)),
+                  )),
+                ],
+              )
+            ],
+          );
         },
       );
     }

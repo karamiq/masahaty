@@ -5,7 +5,6 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_gen/gen_l10n/app_localization.dart';
 import 'package:masahaty/core/constants/constants.dart';
 import 'package:masahaty/provider/change_language.dart';
-import '../../core/constants/assets.dart';
 import '../../routes/routes.dart';
 import 'components/slides_data.dart';
 
@@ -19,7 +18,7 @@ class GettingStarted extends ConsumerStatefulWidget {
 class _GettingStartedState extends ConsumerState<GettingStarted> {
   @override
   Widget build(BuildContext context) {
-    final currrentLanguage = ref.read(currentLanguageProvider.notifier);
+    final currrentLanguage = ref.read(currentLanguageProvider);
 
     return Scaffold(
         body: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -49,7 +48,7 @@ class _GettingStartedState extends ConsumerState<GettingStarted> {
                               Color.fromARGB(255, 0, 158, 204),
                               Color.fromARGB(255, 0, 101, 132),
                             ]),
-                        borderRadius: currrentLanguage.state == const Locale('en')
+                        borderRadius: currrentLanguage == const Locale('en')
                             ? SlidesData(context).borderRadiusListAR[slidesIndex]
                             : SlidesData(context).borderRadiusListEN[slidesIndex],
                       ),

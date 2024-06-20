@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:masahaty/core/constants/constants.dart';
-import 'package:masahaty/models/order_model.dart';
 import 'package:masahaty/models/storage&features_model.dart';
 import 'package:masahaty/pages/wharehouse_pages/components/info_table.dart';
 import 'package:masahaty/pages/wharehouse_pages/wharehouse_reserve_form.dart';
@@ -26,7 +25,6 @@ class WarehouseDetailesPage extends ConsumerStatefulWidget {
   @override
   createState() => _WarehouseDetailesState();
 }
-
 class _WarehouseDetailesState extends ConsumerState<WarehouseDetailesPage> {
   get currentUserToken => ref.read(currentUserProvider)?.token;
   Storage? currentWarehouse;
@@ -41,7 +39,6 @@ class _WarehouseDetailesState extends ConsumerState<WarehouseDetailesPage> {
   Future<void> getDetails() async {
     try {
       Storage temp = await storageService.storageGetById(id: widget.id);
-      print(widget.id);
       setState(() {
         currentWarehouse = temp;
       });

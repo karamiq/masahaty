@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localization.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:masahaty/models/order_model.dart';
+import 'package:masahaty/components/warehouse_card_skeleton.dart';
 import 'package:masahaty/models/storage&features_model.dart';
 import 'package:masahaty/services/api/dio_storage.dart';
 import '../../components/custom_back_botton.dart';
@@ -17,40 +17,48 @@ class MyPostPage extends ConsumerStatefulWidget {
 }
 
 class _MyPostPageState extends ConsumerState<MyPostPage> {
-  get currentUserId => ref.read(currentUserProvider)?.id;
-   List<Storage> currentPosts = [];
+  late String? currentUserId = ref.read(currentUserProvider)?.id;
+  List<Storage> currentPosts = [];
   StorageService storageService = StorageService();
+  bool isLoading = false;
 
-
-
-   void getOrders() async {
+  void getOrders() async {
+    setState(() => isLoading = true);
     final storages = await storageService.storageGet();
     for (Storage storage in storages) {
       if (storage.owner.id == currentUserId) {
         currentPosts.add(storage);
       }
     }
-    setState(() {});
+    setState(() => isLoading = false);
   }
-   @override
+
+  @override
   void initState() {
     super.initState();
     getOrders();
   }
+
   @override
   Widget build(BuildContext context) {
-   
     Widget content;
-    
-
-
-
-
-
-
-    if (currentPosts.isEmpty) {
+    if (isLoading) {
+      content = const SingleChildScrollView(
+        child:  Center(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              WarehouseCardSkeleton(),
+              WarehouseCardSkeleton(),
+              WarehouseCardSkeleton()
+            ],
+          ),
+        ),
+      );
+    } else if (currentPosts.isEmpty) {
       content = Center(
-        child: Text("${AppLocalizations.of(context)!.myPosts} ${AppLocalizations.of(context)!.empty}"),
+        child: Text(
+            "${AppLocalizations.of(context)!.myPosts} ${AppLocalizations.of(context)!.empty}"),
       );
     } else {
       content = ListView.separated(
@@ -77,7 +85,7 @@ class _MyPostPageState extends ConsumerState<MyPostPage> {
         },
       );
     }
-    return  Scaffold(
+    return Scaffold(
         appBar: AppBar(
           backgroundColor: CustomColorsTheme.scaffoldBackGroundColor,
           leading: const Padding(

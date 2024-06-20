@@ -5,12 +5,9 @@ import 'package:masahaty/models/order_model.dart';
 import 'package:masahaty/pages/order_detailes_page/order_detailes_page.dart';
 import 'package:masahaty/provider/current_user.dart';
 import 'package:masahaty/services/api/dio_order.dart';
-
 import '../../components/custom_back_botton.dart';
 import '../../core/constants/constants.dart';
 import 'package:flutter_gen/gen_l10n/app_localization.dart';
-
-import '../wharehouse_pages/warehouse_details_page.dart';
 
 class MyBooksPage extends ConsumerStatefulWidget {
   const MyBooksPage({super.key});
@@ -22,16 +19,19 @@ class MyBooksPage extends ConsumerStatefulWidget {
 class _MyBooksPageState extends ConsumerState<MyBooksPage> {
   get currentUserId => ref.read(currentUserProvider)?.id;
   List<Order> currentBooks = [];
+  bool isLoading = false;
   OrderService orderService = OrderService();
   void getOrders() async {
+     setState(()=> isLoading = true);
     final orders = await orderService.orderGet();
     for (Order order in orders) {
       if (order.renter.id == currentUserId) {
         currentBooks.add(order);
       }
     }
-    setState(() {});
+    setState(()=> isLoading = false);
   }
+
   @override
   void initState() {
     super.initState();
@@ -41,9 +41,14 @@ class _MyBooksPageState extends ConsumerState<MyBooksPage> {
   @override
   Widget build(BuildContext context) {
     Widget content;
-    if (currentBooks.isEmpty) {
+    if (isLoading) {
+      content = const Center(
+        child: CircularProgressIndicator(),
+      );
+    } else if (currentBooks.isEmpty) {
       content = Center(
-        child: Text("${AppLocalizations.of(context)!.myBooking} ${AppLocalizations.of(context)!.empty}"),
+        child: Text(
+            "${AppLocalizations.of(context)!.myBooking} ${AppLocalizations.of(context)!.empty}"),
       );
     } else {
       content = ListView.separated(
@@ -66,10 +71,11 @@ class _MyBooksPageState extends ConsumerState<MyBooksPage> {
                       CoustomBorderTheme.normalBorderRaduis)),
               child: ListTile(
                 onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                    builder: (c) => OrderDetailesPage(
-                        id: currentBooks[index].id))),
+                    builder: (c) =>
+                        OrderDetailesPage(id: currentBooks[index].id))),
                 title: Text(currentBooks[index].storage.name),
-                subtitle: Text("${AppLocalizations.of(context)!.owner}: ${currentBooks[index].owner.fullName}"),
+                subtitle: Text(
+                    "${AppLocalizations.of(context)!.owner}: ${currentBooks[index].owner.fullName}"),
                 leading: CircleAvatar(
                   backgroundImage:
                       NetworkImage(currentBooks[index].storage.images[0]),
@@ -107,7 +113,7 @@ class _MyBooksPageState extends ConsumerState<MyBooksPage> {
             padding: EdgeInsets.all(CustomPageTheme.smallPadding),
             child: CustomBackButton(),
           ),
-           title: Text(AppLocalizations.of(context)!.myBooking),
+          title: Text(AppLocalizations.of(context)!.myBooking),
           centerTitle: true,
         ),
         body: content);

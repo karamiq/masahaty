@@ -29,10 +29,10 @@ class _OrderDetailesPageState extends ConsumerState<OrderDetailesPage> {
   get currentLanguage => ref.read(currentLanguageProvider);
   get token => ref.read(currentUserProvider)?.token;
   OrderService orderService = OrderService();
-
   late List<StorageFeature> features = [];
   Order? currentOrder;
   Future<void> getOrder() async {
+
     currentOrder = await orderService.orderGetById(id: widget.id);
   }
 

@@ -16,8 +16,8 @@ class WarehouseCardSkeleton extends StatelessWidget {
           const EdgeInsets.symmetric(vertical: CustomPageTheme.smallPadding),
       padding:
           const EdgeInsets.symmetric(horizontal: CustomPageTheme.normalPadding),
-      width: 347,
       height: 337,
+        width: 377,
       decoration: BoxDecoration(
         border: Border.all(color: Colors.grey, width: 0.1),
         color: Colors.white,

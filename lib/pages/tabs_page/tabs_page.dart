@@ -10,21 +10,21 @@ import 'package:masahaty/routes/routes.dart';
 import 'components/custom_botton_app_bar.dart';
 
 class TabsPage extends StatefulWidget {
-   TabsPage({super.key, this.pageIndex = 0});
-   int pageIndex;
+  TabsPage({super.key});
   @override
   State<TabsPage> createState() => _TabsPageState();
 }
 
 class _TabsPageState extends State<TabsPage> {
+  int pageIndex = 0;
   void _selectedPage(int index) {
     setState(() {
-     // selectedPageIndex = index;
-      widget.pageIndex = index;
+      // selectedPageIndex = index;
+      pageIndex = index;
     });
   }
 
- // int selectedPageIndex = 0;
+  // int selectedPageIndex = 0;
   double slideSize = 0;
   List<Widget> _pages = [];
   @override
@@ -65,10 +65,10 @@ class _TabsPageState extends State<TabsPage> {
       ),
       bottomNavigationBar: CustomBottomAppBar(
         selectedPage: _selectedPage,
-        selectedPageIndex: widget.pageIndex,
+        selectedPageIndex: pageIndex,
         size: size,
       ),
-      body: _pages[widget.pageIndex],
+      body: _pages[pageIndex],
     );
   }
 }
